@@ -17,12 +17,10 @@ class LGP(AbstractPrograms):
         self.register_set = config_handler.parse_registers()
         self.function_set = config_handler.parse_function_set()
         self.terminal_set = config_handler.parse_terminal_set()
-        self.outputs, self.discrete_output = config_handler.parse_outputs()
+        self.outputs = config_handler.parse_outputs()
         self.statement_output_pool = self.create_statement_output_pool()
         self.statements = []
-        # if not self.has_discrete_output:
-        #     if random.random() < self.output_ratio:
-        #         program.program_type = "O"
+
 
     #     self.warning_flag = True
     #     self.discrete_output = None
@@ -118,37 +116,36 @@ class LGP(AbstractPrograms):
                                      int(self.config["conditional_return_depth"]), return_value_selection_pool)
             retcon_operator.generate()
             self.statements.append(retcon_operator)
-    #
-    # def add_indent(self, program_txt: str):
-    #     indent = "\t"
-    #     indented_program_txt = program_txt.replace("\n", "\n\t")
-    #     indented_program_txt = indent + indented_program_txt
-    #     return indented_program_txt
-    #
-    # def annotation(self):
-    #     annotation = ""
-    #     indent = "\t"
-    #     for index, statement in enumerate(self.statements):
-    #         if index == len(self.statements) - 1:
-    #             # Return Statement
-    #             indent = "\t"
-    #             if statement.__class__.__name__ == "Retcon":
-    #                 annotation += self.add_indent(statement.annotate())
-    #             else:
-    #                 annotation += indent + "return " + repr(statement)
-    #         else:
-    #             annotation += indent + statement.annotate() + "\n"
-    #             if statement.products()[0] == "structural":
-    #                 indent += "\t"
-    #             elif len(indent) > len("\t"):  # normal instruction
-    #                 indent = "\t"
-    #         # print("decreasing indent")
-    #
-    #         if index is len(self.statements) - 2 and statement.products()[0] == "structural":
-    #             annotation += indent + "pass\n"
-    #
-    #     return annotation
-    #
+
+    def add_indent(self, program_txt: str):
+        indent = "\t"
+        indented_program_txt = program_txt.replace("\n", "\n\t")
+        indented_program_txt = indent + indented_program_txt
+        return indented_program_txt
+
+    def annotation(self):
+        annotation = ""
+        indent = "\t"
+        for index, statement in enumerate(self.statements):
+            if index == len(self.statements) - 1:
+                # Return Statement
+                indent = "\t"
+                if statement.__class__.__name__ == "Retcon":
+                    annotation += self.add_indent(statement.annotate())
+                else:
+                    annotation += indent + "return " + repr(statement)
+            else:
+                annotation += indent + statement.annotate() + "\n"
+                if statement.products()[0] == "structural":
+                    indent += "\t"
+                elif len(indent) > len("\t"):  # normal instruction
+                    indent = "\t"
+
+            if index is len(self.statements) - 2 and statement.products()[0] == "structural":
+                annotation += indent + "pass\n"
+
+        return annotation
+
     # def cost(self, source_pos):
     #     global SHARED_memory
     #

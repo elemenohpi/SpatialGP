@@ -101,5 +101,14 @@ class ConfigHandler:
         else:
             raise ValueError("Outputs specified in the config file could not be processed.")
 
-        return output_pool, has_discrete_output
+        return output_pool
+
+    def has_discrete_outputs(self):
+        has_discrete_output = False
+        try:
+            output_pool = json.loads(self.config["outputs"])
+        except json.decoder.JSONDecodeError:
+            output_pool = self.config["outputs"].replace(" ", "").split(",")
+            has_discrete_output = True
+        return has_discrete_output
 

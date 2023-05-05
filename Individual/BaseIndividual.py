@@ -1,7 +1,8 @@
-import json
+import math
 import random
 
 from Individual.AbstractIndividual import AbstractIndividual
+from Handlers.ConfigHandler import ConfigHandler
 
 
 class BaseIndividual(AbstractIndividual):
@@ -13,13 +14,12 @@ class BaseIndividual(AbstractIndividual):
         self.init_size_max = int(self.config["init_size_max"])
         self.init_lgp_size_min = int(self.config["init_lgp_size_min"])
         self.init_lgp_size_max = int(self.config["init_lgp_size_max"])
-
-    # def manage_output_type(self):
-    #     try:
-    #         self.output_pool = json.loads(self.config["outputs"])
-    #     except json.decoder.JSONDecodeError:
-    #         self.output_pool = self.config["outputs"].replace(" ", "").split(",")
-    #         self.has_discrete_output = True
+        self.init_radius = int(self.config["init_radius"])
+        self.output_ratio = float(self.config["output_ratio"])
+        self.programs = []
+        config_handler = ConfigHandler(config)
+        self.outputs = config_handler.parse_outputs()
+        self.has_discrete_output = config_handler.has_discrete_outputs()
 
     def individual_eval(self, inputs):
         pass
@@ -30,22 +30,28 @@ class BaseIndividual(AbstractIndividual):
         for i in range(program_count):
             program = self.programs_class(self.config)
             program.generate()
-            x = random.randint(-1 * self.cue_init_radius, self.cue_init_radius)
-            y = random.randint(-1 * self.cue_init_radius, self.cue_init_radius)
-            program.pos = (x, y)
-
+            program.pos = self.random_point_in_circle(self.init_radius)
+            if not self.has_discrete_output:
+                if random.random() < self.output_ratio:
+                    program.program_type = "O"
             self.programs.append(program)
+
         if self.has_discrete_output:
-            for possible_discrete_output in self.output_pool:
-                program = CueProgram(self.config, self.input_pool, self.constant_pool, self.operator_pool,
-                                     self.output_pool,
-                                     self.registers, self.has_discrete_output
-                                     )
+            for possible_discrete_output in self.outputs:
+                program = self.programs_class(self.config)
                 program.program_type = "O"
                 program.discrete_output = possible_discrete_output
-                program_size = random.randint(self.cue_init_lgp_size_min, self.cue_init_lgp_size_max)
-                program.generate(program_size)
-                x = random.randint(-1 * self.cue_init_radius, self.cue_init_radius)
-                y = random.randint(-1 * self.cue_init_radius, self.cue_init_radius)
-                program.pos = (x, y)
+                program.generate()
+                program.pos = self.random_point_in_circle(self.init_radius)
                 self.programs.append(program)
+
+    def random_point_in_circle(self, r):
+        # Generate a random angle between 0 and 2pi
+        theta = random.uniform(0, 2 * math.pi)
+        # Generate a random radius between 0 and r
+        s = r * math.sqrt(random.uniform(0, 1))
+        # Calculate the x and y coordinates
+        x = s * math.cos(theta)
+        y = s * math.sin(theta)
+        return x, y
+
