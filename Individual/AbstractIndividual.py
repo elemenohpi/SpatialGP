@@ -14,4 +14,7 @@ class AbstractIndividual(ABC):
     @abstractmethod
     def individual_eval(self, inputs):
         pass
-    pass
+
+    @abstractmethod
+    def crossover(self, parent_b):
+        pass

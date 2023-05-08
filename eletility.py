@@ -429,8 +429,7 @@ class Times:
 
     def now(self):
         now = datetime.datetime.now().time()
-        return now
-        pass
+        return now.strftime('%H:%M:%S')
 
     def substract(self, endtime, starttime):
         date = datetime.date(1, 1, 1)

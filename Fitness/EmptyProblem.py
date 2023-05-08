@@ -6,7 +6,7 @@ class EmptyProblem(AbstractFitness):
         pass
 
     def evaluate(self, indv):
-        pass
+        return 0
 
     def postprocess(self, indv):
         pass

@@ -1,3 +1,8 @@
+import copy
+import random
+
+import eletility
+
 from Evolver.AbstractEvolver import AbstractEvolver
 
 
@@ -11,53 +16,38 @@ class BaseEvolver(AbstractEvolver):
         self.interpreter_obj = interpreter_obj
         self.tournament_size = int(self.config["tournament_size"])
         self.elitism = int(self.config["elitism"])
+        self.save_annotation = self.config["save_annotation"]
+        self.Files = eletility.Files()
+        self.Log = eletility.Log()
 
     def run(self):
         best_individual = None
-        elites = [None for _ in range(self.elitism)]
 
         for generation in range(self.generations):
             log_msg = "\t{}: ".format(generation)
-            avg_fitness = self.update_population_fitness()
-            exit("manual")
+            average_fitness = self.update_population_fitness()
             self.sort_population()
 
-            elites = copy.deepcopy(self.pop[0:self.elitism])
-            if best_individual is None or elites[0].fitness != best_individual.fitness:
-                best_individual = copy.deepcopy(elites[0])
-                if self.config["make_viz_data"] == "True":
-                    self.log_individual_for_visualization(best_individual)
-                self.best_indv_change_counter += 1
-            avg_fitness /= len(self.pop)
+            average_length = 0
+            for individual in self.pop:
+                average_length += len(individual.programs)
+            average_length /= len(self.pop)
 
-            alen = 0
-            for indv in self.pop:
-                alen += len(indv.programs)
-            alen /= len(self.pop)
+            log_msg += "Best Fitness: {}, Average Fitness: {}, Best Individual Size: {}, Average Model Size: {}".\
+                format(self.pop[0].fitness, average_fitness, len(self.pop[0].programs), average_length)
 
-            log_msg += "best Fitness: {}, info1: {}, info2: {}, avg: {}, blen: {}, alen: {}".format(elites[0].fitness,
-                                                                                                    elites[0].rvalue,
-                                                                                                    elites[0].rmse,
-                                                                                                    avg_fitness, len(
-                    elites[0].programs), alen)
-            save_log_msg = "{}, {}, {}, {}".format(elites[0].fitness, elites[0].rvalue, elites[0].rmse, avg_fitness)
-            # ToDo:: Save the best individual
-            best_individual_annotation = elites[0].annotate_program()
+            save_log_msg = "{}, {}, {}, {}".format(self.pop[0].fitness, average_fitness, len(self.pop[0].programs),
+                                                   average_length)
 
-            self.save_best(best_individual_annotation)
-            self.save_log(gen, save_log_msg)
+            if self.save_annotation == "True":
+                best_individual_annotation = self.pop[0].get_annotation()
+                self.save_best(best_individual_annotation)
+
+            self.save_log(generation, save_log_msg)
             self.Log.I(log_msg)
-            # for elite in elites:
-            #     self.Log.Yprint(elite.fitness)
-            # print()
+            self.tournament()
 
-            self.tournament(elites)
-            # for indv in self.pop:
-            #     print(indv.fitness, end=" ")
-            #     if indv.fitness == 0:
-            #         self.Log.Rprint("wtf?")
-            # print()
-        # best_individual.annotate_program(True)
+            exit("manual")
         try:
             self.pickle_object(best_individual)
         except TypeError:
@@ -87,28 +77,95 @@ class BaseEvolver(AbstractEvolver):
         sum_fitness = 0
         for index, individual in enumerate(self.pop):
             try:
-                fitness, rvalue, rmse = self.fitness_obj.evaluate(individual)
-                exit("manual")
-            except OverflowError:
-                print("overflow error")
-                # ToDo:: fix this
-                if self.config["optimization_goal"] == "min":
-                    fitness = sys.float_info.max
-                    rvalue = 0
-                    rmse = 0
-                elif self.config["optimization_goal"] == "max":
-                    fitness = sys.float_info.max * -1
-                    rvalue = 0
-                    rmse = 0
-                else:
-                    raise "Unknown optimization goal"
-            # misleading naming convention
-            # print(fitness, rvalue, rmse)
+                fitness = self.fitness_obj.evaluate(individual)
+            except Exception as e:
+                raise Exception("An error occurred in the fitness function. Message: ", e.__str__())
             self.pop[index].fitness = fitness
-            self.pop[index].rvalue = rvalue
-            self.pop[index].rmse = rmse
             sum_fitness += fitness
+        return sum_fitness/len(self.pop)
 
-        # print(datetime.datetime.now() - start)
-        return sum_fitness
+    def sort_population(self):
+        if self.config["optimization_goal"] == "min":
+            order = False
+        elif self.config["optimization_goal"] == "max":
+            order = True
+        else:
+            raise "Unknown optimization goal"
+        self.pop.sort(key=lambda x: x.fitness, reverse=order)
 
+    def update_elite_list(self, elites, new_elite):
+        return elites
+
+    def save_best(self, annotation):
+        destination = self.config["best_program"]
+        disclaimer = "# This code is a generated/synthesized QGP model/program\n# =================================" \
+                     "=========== \n\n"
+        self.Files.writeTruncate(destination, disclaimer + annotation)
+
+    def save_log(self, gen, log):
+        destination = self.config["evo_file"]
+        if gen == 0:
+            title = "gen, fitness, info1, info2, avg\n"
+            self.Files.writeTruncate(destination, title + repr(gen) + ", " + log + "\n")
+        else:
+            self.Files.writeLine(destination, repr(gen) + ", " + log)
+
+    def sort_tournament(self, tournament):
+        if self.config["optimization_goal"] == "min":
+            order = False
+        elif self.config["optimization_goal"] == "max":
+            order = True
+        else:
+            raise "Unknown optimization goal"
+        tournament.sort(key=lambda x: x.fitness, reverse=order)
+        return tournament
+
+    def tournament(self):
+        new_pop = []
+        if self.elitism >= 1:
+            new_pop = copy.deepcopy(self.pop[:self.elitism-1])
+
+        for i, indv in enumerate(new_pop):
+            indv.individual_index = i
+
+        while len(new_pop) < len(self.pop):
+            tournament_list = []
+            for i in range(self.tournament_size):
+                tournament_list.append(random.choice(self.pop))
+            sorted_tournament = self.sort_tournament(tournament_list)
+            parent_a, parent_b = copy.deepcopy(sorted_tournament[0]), copy.deepcopy(sorted_tournament[1])
+
+            if random.random() < float(self.config["crossover_rate"]):
+                offspring_a, offspring_b = parent_a.crossover(parent_b)
+            else:
+                offspring_a, offspring_b = parent_a, parent_b
+
+            self.mutate_individual(offspring_b)
+            self.mutate_individual(offspring_a)
+
+            offspring_a.individual_index = len(new_pop)
+            new_pop.append(offspring_a)
+            offspring_b.individual_index = len(new_pop)
+            new_pop.append(offspring_b)
+        self.pop = copy.deepcopy(new_pop)
+
+    def mutate_individual(self, individual):
+        rand = random.random()
+        if rand < float(self.config["structural_mutation_rate"]):
+            # Structural mutation
+            rand = random.random()
+            if rand < 0.5:
+                if len(individual.programs) <= int(self.config["lgp_size_max"]):
+                    individual.add_program()
+            else:
+                if len(individual.programs) > 0:
+                    random_index = random.randint(0, len(individual.programs) - 1)
+                    if individual.programs[random_index].program_type != "O":
+                        del individual.programs[random_index]
+        for program in individual.programs:
+            rand = random.random()
+            if rand < float(self.config["lgp_mutation_rate"]):
+                program.lgp_mutation()
+            if rand < float(self.config["structural_mutation_rate"]):
+                program.spatial_mutation()
+        pass

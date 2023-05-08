@@ -90,9 +90,9 @@ class SpatialGP:
         pop_obj = self.population_class(self.config, self.individual_class, self.programs_class)
         fitness_obj = self.fitness_class()
         interpreter_obj = self.interpreter_class(self.config)
-        evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj, interpreter_obj)
 
         pop_obj.generate_population()
+        evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj, interpreter_obj)
 
         best_fitness = evolver_obj.run()
         print("manual exit")

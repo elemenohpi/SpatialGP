@@ -1,4 +1,5 @@
-- Think about the idea of shapes for program nodes. e.g. circular, rectangular etc
-- Think about initialization types of the nodes/LGPs
-- We can create spatial conditions with RetCons
-- One thing I don't particularly love about this system is how the non-discrete outputs are determined
+- Think about the idea of shapes for program nodes. e.g. circular, rectangular etc                                      !!
+- Think about initialization types of the nodes/LGPs. Grow, Half and half, full etc                                     !!
+- We can create spatial conditions with RetCons                                                                         !!!!!
+- One thing I don't particularly love about this system is how the non-discrete outputs are determined                  !
+- Determining the inputs and outputs in the fitness file                                                                !!!!
