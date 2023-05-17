@@ -1,4 +1,5 @@
 import copy
+import pickle
 import random
 
 import eletility
@@ -45,9 +46,10 @@ class BaseEvolver(AbstractEvolver):
 
             self.save_log(generation, save_log_msg)
             self.Log.I(log_msg)
+            if generation == self.generations - 1:
+                break
             self.tournament()
 
-            exit("manual")
         try:
             self.pickle_object(best_individual)
         except TypeError:
@@ -69,17 +71,22 @@ class BaseEvolver(AbstractEvolver):
                     top_left += 1
         print("Final Positional Counts -> top_right:", top_right, "bot_right:", bottom_right, "bot_left:", bottom_left,
               "top_left:", top_left)
-        if elites[0] is not None:
-            return elites[0].fitness
-        return None
+        return self.pop[0].fitness
 
     def update_population_fitness(self):
         sum_fitness = 0
         for index, individual in enumerate(self.pop):
-            try:
-                fitness = self.fitness_obj.evaluate(individual)
-            except Exception as e:
-                raise Exception("An error occurred in the fitness function. Message: ", e.__str__())
+            # The following lines are meant to be used to speed up the evaluation process slightly with the cost of
+            # sacrificing modularity to a small degree
+            if not individual.has_discrete_output:
+                individual.has_output = False
+                for program in individual.programs:
+                    if program.program_type == "O":
+                        individual.has_output = True
+                        break
+
+            fitness = self.fitness_obj.evaluate(individual)
+
             self.pop[index].fitness = fitness
             sum_fitness += fitness
         return sum_fitness/len(self.pop)
@@ -123,7 +130,7 @@ class BaseEvolver(AbstractEvolver):
     def tournament(self):
         new_pop = []
         if self.elitism >= 1:
-            new_pop = copy.deepcopy(self.pop[:self.elitism-1])
+            new_pop = copy.deepcopy(self.pop[:self.elitism])
 
         for i, indv in enumerate(new_pop):
             indv.individual_index = i
@@ -158,7 +165,7 @@ class BaseEvolver(AbstractEvolver):
                 if len(individual.programs) <= int(self.config["lgp_size_max"]):
                     individual.add_program()
             else:
-                if len(individual.programs) > 0:
+                if len(individual.programs) > 1:
                     random_index = random.randint(0, len(individual.programs) - 1)
                     if individual.programs[random_index].program_type != "O":
                         del individual.programs[random_index]
@@ -169,3 +176,8 @@ class BaseEvolver(AbstractEvolver):
             if rand < float(self.config["structural_mutation_rate"]):
                 program.spatial_mutation()
         pass
+
+    def pickle_object(self, obj):
+        destination = self.config["best_object"]
+        with open(destination, 'wb') as object_file:
+            pickle.dump(obj, object_file)

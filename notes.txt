@@ -1,5 +1,24 @@
+Ideas/Notes                                                                                                             Importance
+===================================================================================================================================
 - Think about the idea of shapes for program nodes. e.g. circular, rectangular etc                                      !!
 - Think about initialization types of the nodes/LGPs. Grow, Half and half, full etc                                     !!
 - We can create spatial conditions with RetCons                                                                         !!!!!
 - One thing I don't particularly love about this system is how the non-discrete outputs are determined                  !
 - Determining the inputs and outputs in the fitness file                                                                !!!!
+- A lot of short programs in space to compare spatial vs. programmatical                                                !!!!!!!!
+- I should try adding sample simple examples of new modules for test/learn purposes                                     !!!
+- Duplication with variation                                                                                            !
+- Evolution of learning with memory using SGP. Evolving models to successfully solve problems after a few attempts      !
+- It's unclear to me whether output registers should be a part of the terminal set or not                               !!!!!!
+- The system DOES NOT work with strings. This can be added to the system in the future.                                 !!
+
+===================================================================================================================================
+Bug Notes                                                                                                               Importance
+===================================================================================================================================
+- There was an individual with no programs!!                                                                            !!!!!!!!!
+- Addition to the prev, now we do not punish (should we?) the individuals with no program or no suitable outputs        !!!!!
+
+===================================================================================================================================
+Paper Notes                                                                                                             Importance
+===================================================================================================================================
+- SGP is much like an ARN in which costs/weights can't be calculated in advance

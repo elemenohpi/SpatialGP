@@ -16,3 +16,11 @@ class AbstractFitness(ABC):
     @abstractmethod
     def postprocess(self, indv):
         pass
+
+    @abstractmethod
+    def inputs(self):
+        pass
+
+    @abstractmethod
+    def outputs(self):
+        pass

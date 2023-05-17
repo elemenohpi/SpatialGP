@@ -95,8 +95,7 @@ class SpatialGP:
         evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj, interpreter_obj)
 
         best_fitness = evolver_obj.run()
-        print("manual exit")
-        exit()
+
         end_time = self.Times.now()
 
         # return best_fitness

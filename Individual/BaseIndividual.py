@@ -1,6 +1,7 @@
 import copy
 import math
 import random
+import time
 
 from Individual.AbstractIndividual import AbstractIndividual
 from Handlers.ConfigHandler import ConfigHandler
@@ -13,6 +14,7 @@ def distance_to_pos(source_pos, pos):
 class BaseIndividual(AbstractIndividual):
     def __init__(self, config, programs_class):
         super().__init__(config, programs_class)
+        self.has_output = False
         self.config = config
         self.programs_class = programs_class
         self.init_size_min = int(self.config["init_size_min"])
@@ -28,9 +30,7 @@ class BaseIndividual(AbstractIndividual):
         self.functions = config_handler.parse_function_set()
         self.outputs = config_handler.parse_outputs()
         self.has_discrete_output = config_handler.has_discrete_outputs()
-
-    def individual_eval(self, inputs):
-        pass
+        self.internal_state = {}
 
     def init_random(self):
         program_count = random.randint(self.init_size_min, self.init_size_max)
@@ -304,11 +304,15 @@ class BaseIndividual(AbstractIndividual):
         max_program_size = int(self.config["lgp_size_max"])
         for program in self.programs:
             if not self.has_discrete_output:
+                # The program does not have discrete outputs
                 discrete_output_condition = True
             else:
+                # The program has discrete outputs
                 discrete_output_condition = not (program.program_type == "O")
                 if program.program_type == "O":
+                    # Basically, we let individual A to have its own output programs without any changes
                     a_output_programs.append(program)
+            # This condition is set to be True if the program does not have discrete outputs or if the program type is I
             if discrete_output_condition:
                 if distance_to_pos(program.pos, (rand_x, rand_y)) <= radius:
                     a_inside_programs.append(program)
@@ -326,8 +330,8 @@ class BaseIndividual(AbstractIndividual):
                     b_inside_programs.append(program)
                 else:
                     b_outside_programs.append(program)
-        offspring_a = self.programs_class(self.config)
-        offspring_b = self.programs_class(self.config)
+        offspring_a = BaseIndividual(self.config, self.programs_class)
+        offspring_b = BaseIndividual(self.config, self.programs_class)
 
         ab_inside_outside_programs = a_inside_programs + b_outside_programs
         ba_inside_outside_programs = a_outside_programs + b_inside_programs
@@ -344,3 +348,180 @@ class BaseIndividual(AbstractIndividual):
         offspring_b = copy.deepcopy(offspring_b)
 
         return offspring_a, offspring_b
+
+    def add_program(self):
+        max_size = int(self.config["size_max"])
+        radius = float(self.config["init_radius"])
+        if len(self.programs) >= max_size:
+            return
+        program = self.programs_class(self.config)
+        program.generate()
+        program.pos = self.random_point_in_circle(radius)
+        if not self.has_discrete_output:
+            if random.random() < self.output_ratio:
+                program.program_type = "O"
+        self.programs.append(program)
+
+    def evaluate(self, problem_inputs):
+        self.initialize_memory(problem_inputs)
+
+        current_program = None
+        indv_return_value = None
+        discrete_output = None
+
+        # This is to make sure we don't change the programs permanently during evaluation
+        programs_copy = copy.deepcopy(self.programs)
+        execution_limit = 0
+        execution_counter = 0
+        if not self.has_discrete_output and not self.has_output:
+            execution_limit = len(programs_copy)
+        start_time = time.time()
+
+        while True:
+            if execution_limit > 0:
+                if execution_counter >= execution_limit:
+                    break
+                else:
+                    execution_counter += 1
+
+            current_program = self.select_program(current_program, programs_copy)
+
+            if current_program is None:
+                # End, there are no more programs
+                break
+
+            temp_output = current_program.program_eval(self.internal_state)
+
+            # ToDo:: end and exit are not implemented in the output program
+            if temp_output == "end":
+                programs_copy.remove(current_program)
+                continue
+
+            if temp_output == "exit":
+                break
+
+            indv_return_value = temp_output
+
+            if current_program.program_type == "O":
+                discrete_output = current_program.discrete_output
+                break
+
+            elapsed_time = (time.time() - start_time) * 1000
+            max_evaluation_time = float(self.config["max_evaluation_time"])
+            if 0 < max_evaluation_time < elapsed_time:
+                indv_return_value = None
+                break
+
+        if self.has_discrete_output:
+            return discrete_output
+        else:
+            return self.parse_individual_outputs()
+
+    def select_program(self, current_program, programs):
+        if current_program is None:
+            source_pos = (0, 0)
+        else:
+            source_pos = current_program.pos
+
+        selected_program = None
+
+        for index, program in enumerate(programs):
+            candidate_cost = program.cost(source_pos, self.internal_state)
+            # Continue to the next candidate if the system is loop-free and the program node is already visited
+            if self.config["enable_loops"] == "False":
+                if program.visit_count > 0:
+                    continue
+            # If the self-loop is False and the candidate is the current program, continue
+            if self.config["self_loop"] == "False" and current_program == program:
+                continue
+
+            if selected_program is None:
+                selected_program = program
+                continue
+            if candidate_cost < selected_program.cost(source_pos, self.internal_state):
+                selected_program = program
+
+        if selected_program is not None:
+            selected_program.visit_count += 1
+            selected_program.logged_cost = abs(selected_program.cost(source_pos, self.internal_state))
+
+        return selected_program
+
+    def initialize_memory(self, problem_inputs):
+        self.internal_state = {}
+        if not self.passes_input_sanity(problem_inputs):
+            raise ValueError("The provided input list does not match the scheme specified in the problem/fitness file")
+
+        config_handler = ConfigHandler(self.config)
+        fitness_obj = config_handler.get_fitness_obj()
+        input_scheme = fitness_obj.inputs()
+
+        unique_variable_counter = 0
+        for input_element in input_scheme:
+            if self.is_array(input_element):
+                for index in range(self.get_array_length(input_element)):
+                    name = self.get_array_name(input_element)
+                    self.internal_state[name + str(index)] = problem_inputs[unique_variable_counter][index]
+            else:
+                self.internal_state[input_element] = problem_inputs[unique_variable_counter]
+            unique_variable_counter += 1
+
+        self.internal_state.update(self.registers)
+        if not self.has_discrete_output:
+            for output in self.outputs.keys():
+                self.internal_state[output] = 0
+        pass
+
+    def passes_input_sanity(self, problem_inputs):
+        config_handler = ConfigHandler(self.config)
+        fitness_obj = config_handler.get_fitness_obj()
+        input_scheme = fitness_obj.inputs()
+        if len(input_scheme) != len(problem_inputs):
+            print(1)
+            return False
+        for index, input_element in enumerate(input_scheme.keys()):
+            if self.is_array(input_element) and type(problem_inputs[index]) != list:
+                return False
+            elif self.is_array(input_element) and type(problem_inputs[index]) == list \
+                    and len(problem_inputs[index]) != self.get_array_length(input_element):
+                return False
+            elif not self.is_array(input_element) and type(problem_inputs[index]) == list:
+                return False
+        return True
+
+    def is_array(self, input_element):
+        tokens = input_element.split("[")
+        if len(tokens) > 1:
+            return True
+        else:
+            return False
+
+    def get_array_length(self, input_element):
+        tokens = input_element.split("[")
+        length = int(tokens[1].split("]")[0])
+        return length
+
+    def get_array_name(self, input_element):
+        tokens = input_element.split("[")
+        name = tokens[0]
+        return name
+
+    def parse_individual_outputs(self):
+        config_handler = ConfigHandler(self.config)
+        fitness_obj = config_handler.get_fitness_obj()
+        output_scheme = fitness_obj.outputs()
+        output_list = []
+        for unique_output_index, output_element in enumerate(output_scheme):
+            if self.is_array(output_element):
+                output_list.append([])
+                for index in range(self.get_array_length(output_element)):
+                    name = self.get_array_name(output_element)
+                    value = self.internal_state[name + str(index)]
+                    output_list[unique_output_index].append(value)
+            else:
+                value = self.internal_state[output_element]
+                output_list.append(value)
+        if len(output_list) == 1 and not type(output_list[0]) == list:
+            output_list = output_list[0]
+        return output_list
+

@@ -56,16 +56,8 @@ class Retcon:
                     op2 = self.statements[statement_counter+2]
                     if op1 in shared_memory.keys():
                         op1 = shared_memory[op1]
-                        if op1 == "inf" or op1 == float("inf"):
-                            op1 = sys.float_info.max
-                        elif op1 == "-inf" or op1 == float("-inf"):
-                            op1 = sys.float_info.max * -1
                     if op2 in shared_memory.keys():
                         op2 = shared_memory[op2]
-                        if op2 == "inf" or op2 == float("inf"):
-                            op2 = sys.float_info.max
-                        elif op2 == "-inf" or op2 == float("-inf"):
-                            op2 = sys.float_info.max * -1
                     condition_string += " {} {} {}".format(op1, conditional, op2)
                     statement_counter += 3
                 elif candidate in self.connectors:
@@ -76,8 +68,7 @@ class Retcon:
                     condition_string += " " + candidate
                     statement_counter += 1
                 else:
-                    print("unknown candidate: ", candidate)
-                    exit()
+                    raise ValueError("Unknown candidate: ", candidate)
                 j += 1
 
             try:
@@ -89,8 +80,7 @@ class Retcon:
                 else:
                     statement_counter += 1
             except Exception as e:
-                print("condition string error", condition_string)
-                exit()
+                raise Exception("Condition string error", condition_string, "Error message:", e)
             if i == self.condition_depth - 1:
                 ret_val = self.statements[statement_counter]
                 if ret_val in shared_memory.keys():

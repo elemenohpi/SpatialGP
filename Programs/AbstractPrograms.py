@@ -11,3 +11,7 @@ class AbstractPrograms(ABC):
     @abstractmethod
     def generate(self):
         pass
+
+    @abstractmethod
+    def cost(self, pos, memory):
+        pass
