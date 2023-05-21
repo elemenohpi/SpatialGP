@@ -1,6 +1,5 @@
 import paramiko
 
-
 def run_ssh_commands(hostname, port, username, password, commands):
     # Create SSH client
     client = paramiko.SSHClient()
@@ -24,10 +23,10 @@ def run_ssh_commands(hostname, port, username, password, commands):
         client.close()
 
 # Example usage
-hostname = 'hpcc.msu.edu'
+hostname = 'your-ssh-server.com'
 port = 22
-username = 'miralavy'
-password = 'OhLove!1'
+username = 'your-username'
+password = 'your-password'
 commands = ['ls', 'pwd', 'echo "Hello, World!"']
 
 run_ssh_commands(hostname, port, username, password, commands)

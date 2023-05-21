@@ -156,3 +156,5 @@ cython_debug/
 notes.txt
 /Output/
 /Saved Experiments/
+/Configs/
+test.py
