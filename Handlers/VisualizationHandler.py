@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import webbrowser
 
 from Handlers.PlotHandler import *
 
@@ -22,9 +23,10 @@ class VisualizationHandler:
     def analyze_model(self, path_to_experiment):
         path_to_models = path_to_experiment + "Population/"
         evo_file = path_to_experiment + "evo.csv"
-        output_path = path_to_experiment + "Analysis/evo_plot.png"
-        create_evo_plot(evo_file, output_path)
+        output_path = path_to_experiment + "Analysis/"
+        create_evo_plots(evo_file, output_path)
         files = self.get_files_in_path(path_to_models)
+        # ToDo::Make dynamic
         path_to_html = "Output/Analysis/analysis.html"
         canvases = []
         all_coordinates = []
@@ -64,6 +66,8 @@ class VisualizationHandler:
 
         self.generate_html_file(path_to_html, canvases, all_coordinates, all_annotations, all_execution_info,
                                 all_fitness)
+        full_path = os.path.abspath(path_to_html)
+        os.startfile(full_path)
 
     def generate_html_headers(self):
         return '''
@@ -263,16 +267,22 @@ class VisualizationHandler:
         return arrow_html
 
     def generate_evo_plot_html(self, index):
+        html = ''''''
         if index == 0:
             html = f'''
-                <img src='evo_plot.png' style="width: 600px; height: 430px ">
+                <img src='best_plot.png' style="width: 600px; height: 430px ">
+                </img>
+            '''
+        if index == 1:
+            html = f'''
+                <img src='avg_plot.png' style="width: 600px; height: 430px ">
                 </img>
             '''
             return html
-        return ''''''
+        return html
 
     def generate_heatmap_plot_html(self, index):
-        if index == 1:
+        if index == 2:
             html = f'''
                 <img src='heatmap.png' style="width: 600px; height: 430px ">
                 </img>

@@ -4,24 +4,34 @@ import numpy as np
 from matplotlib.patches import Circle
 
 
-def create_evo_plot(file_path, output_path):
+def create_evo_plots(file_path, output_path):
     # Read the data from the file
     df = pd.read_csv(file_path)
 
     # Plotting the line plot
     fig, ax = plt.subplots()
     ax.plot(df["gen"], df["best"], label="Best")
-    ax.plot(df["gen"], df["avg"], label="Average")
-
+    # ax.plot(df["gen"], df["avg"], label="Average")
     # Set plot labels and legend
     ax.set_xlabel("Generation")
     ax.set_ylabel("Fitness")
-    ax.set_title("Evolution Plot")
+    ax.set_title("Fitness over generation for the best individual")
     ax.legend()
 
     # Display the plot
-    plt.savefig(output_path)
+    plt.savefig(output_path+"best_plot.png")
     plt.close()
+
+    fig, ax = plt.subplots()
+    ax.plot(df["gen"], df["avg"], label="Average")
+    # Set plot labels and legend
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Fitness")
+    ax.set_title("Fitness over generation for the average population")
+    ax.legend()
+
+    # Display the plot
+    plt.savefig(output_path+"avg_plot.png")
 
 
 def create_heatmap(coordinates, file_path, radius):
@@ -56,7 +66,7 @@ def create_heatmap(coordinates, file_path, radius):
     # Set plot labels and title
     plt.xlabel('X')
     plt.ylabel('Y')
-    plt.title('Heatmap')
+    plt.title('Spatial heatmap of the population')
 
     # Save the plot as an image file
     plt.savefig(file_path)
