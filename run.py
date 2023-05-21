@@ -45,15 +45,13 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-output", help="Path to the output file")
     parser.add_argument("-pickle", help="Path to the pickled object")
     parser.add_argument("-evo", help="Path to the evolutionary output")
-    # parser.add_argument("-model", help="Evaluates a pickled object")
-    # parser.add_argument("-multirun", help="Multiple N runs of the algorithm on a single CPU.")
     parser.add_argument("-generations", help="Number of generations")
     parser.add_argument("-compare", help="Compares the evo files and returns some stats about the best run. "
                                          "Uses the optimization goal specified in the config.ini file")
     parser.add_argument("-analyze", help="Analyzes a given pickled model")
     parser.add_argument("-test_model", help="Tests a given model")
     parser.add_argument("-save_output", help="Saves the current experiment files in Output", action='store_true')
-
+    parser.add_argument("-pop_save_path", help="Path to where the population pickle files are saved")
     args = parser.parse_args()
     return args
 
@@ -151,6 +149,9 @@ It handles all of the command line arguments and calls other functions as needed
     # evo output file
     if args.evo:
         config["evo_file"] = args.evo
+
+    if args.pop_save_path:
+        config["pop_save_path"] = args.pop_save_path
 
     # Run an HPCC experiment with a single config file
     if args.hpcc:
@@ -323,6 +324,7 @@ def hpcc(reps, hours, generations, seed, title, config):
         os.mkdir("Output/{}/Error".format(title))
         os.mkdir("Output/{}/Slurm".format(title))
         os.mkdir("Output/{}/Evo".format(title))
+        os.mkdir("Output/{}/Population".format(title))
         os.mkdir("Output/{}/Object".format(title))
         os.mkdir("Output/{}/Executable".format(title))
         os.mkdir("Output/{}/Subs".format(title))
@@ -376,11 +378,13 @@ def hpcc(reps, hours, generations, seed, title, config):
         file.write("cd ~/{}\n".format(directory_name))
         # file.write("module load GCC/6.4.0-2.28 OpenMPI  ### load necessary modules, e.g\n")
         output = "Output/{}/Executable/exec_{}.py".format(title, i)
-        pickle = "Output/{}/Object/pickled_{}.sgp".format(title, i)
+        pickleo = "Output/{}/Object/pickled_{}.sgp".format(title, i)
         evo = "Output/{}/Evo/evo_{}.csv".format(title, i)
+        pop_save_path = f"Output/{title}/Population/"
         file.write(
-            "srun -n 1 python run.py -generations {} -output {} -pickle {} -evo {} -seed {} -config {}\n".format(
-                generations, output, pickle, evo, seed + i, config))
+            "srun -n 1 python run.py -generations {} -output {} -pickle {} -evo {} -seed {} -pop_save_path {} -config "
+            "{}\n".format(
+                generations, output, pickleo, evo, seed + i, pop_save_path, config))
         file.write(
             "scontrol show job Output/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
                 title))
