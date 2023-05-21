@@ -5,7 +5,6 @@ class AbstractFitness(ABC):
     def __init__(self) -> None:
         pass
 
-    @abstractmethod
     def preprocess(self, indv):
         pass
     
@@ -13,7 +12,6 @@ class AbstractFitness(ABC):
     def evaluate(self, indv):
         return -1
 
-    @abstractmethod
     def postprocess(self, indv):
         pass
 
@@ -23,4 +21,8 @@ class AbstractFitness(ABC):
 
     @abstractmethod
     def outputs(self):
+        pass
+
+    @abstractmethod
+    def settings(self):
         pass

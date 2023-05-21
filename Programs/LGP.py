@@ -101,29 +101,6 @@ class LGP(AbstractPrograms):
         indented_program_txt = indent + indented_program_txt
         return indented_program_txt
 
-    def annotation(self):
-        annotation = ""
-        indent = "\t"
-        for index, statement in enumerate(self.statements):
-            if index == len(self.statements) - 1:
-                # Return Statement
-                indent = "\t"
-                if statement.__class__.__name__ == "Retcon":
-                    annotation += self.add_indent(statement.annotate())
-                else:
-                    annotation += indent + "return " + repr(statement)
-            else:
-                annotation += indent + statement.annotate() + "\n"
-                if statement.products()[0] == "structural":
-                    indent += "\t"
-                elif len(indent) > len("\t"):  # normal instruction
-                    indent = "\t"
-
-            if index is len(self.statements) - 2 and statement.products()[0] == "structural":
-                annotation += indent + "pass\n"
-
-        return annotation
-
     def lgp_mutation(self):
         # add statement, remove statement, modify statement each have 33% chance
         rand = random.random()
@@ -293,3 +270,39 @@ class LGP(AbstractPrograms):
                     value_list.append(operand)
         return value_list
 
+    def annotation(self):
+        annotation = ""
+        indent = "\t"
+        for index, statement in enumerate(self.statements):
+            if index == len(self.statements) - 1:
+                # Return Statement
+                indent = "\t"
+                if statement.__class__.__name__ == "Retcon":
+                    annotation += self.add_indent(statement.annotate())
+                else:
+                    annotation += indent + "return " + repr(statement)
+            else:
+                annotation += indent + statement.annotate() + "\n"
+                if statement.products()[0] == "structural":
+                    indent += "\t"
+                elif len(indent) > len("\t"):  # normal instruction
+                    indent = "\t"
+
+            if index is len(self.statements) - 2 and statement.products()[0] == "structural":
+                annotation += indent + "pass\n"
+
+        return annotation
+
+    def tooltip_text(self):
+        annotation = ""
+        for index, statement in enumerate(self.statements):
+            if index == len(self.statements) - 1:
+                # Return Statement
+                if statement.__class__.__name__ == "Retcon":
+                    annotation += statement.annotate()
+                else:
+                    annotation += "return " + repr(statement)
+            else:
+                annotation += statement.annotate() + "\n"
+
+        return annotation

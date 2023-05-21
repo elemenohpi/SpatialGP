@@ -14,6 +14,8 @@ def distance_to_pos(source_pos, pos):
 class BaseIndividual(AbstractIndividual):
     def __init__(self, config, programs_class):
         super().__init__(config, programs_class)
+        self.analysis = False
+        self.execution_info = []
         self.has_output = False
         self.config = config
         self.programs_class = programs_class
@@ -31,6 +33,7 @@ class BaseIndividual(AbstractIndividual):
         self.outputs = config_handler.parse_outputs()
         self.has_discrete_output = config_handler.has_discrete_outputs()
         self.internal_state = {}
+        self.fitness_obj = config_handler.get_fitness_obj()
 
     def init_random(self):
         program_count = random.randint(self.init_size_min, self.init_size_max)
@@ -369,10 +372,17 @@ class BaseIndividual(AbstractIndividual):
         indv_return_value = None
         discrete_output = None
 
+        # For analysis purposes only
+        if self.analysis:
+            self.execution_info.append([])
+            for index, program in enumerate(self.programs):
+                program.id = index
+
         # This is to make sure we don't change the programs permanently during evaluation
         programs_copy = copy.deepcopy(self.programs)
         execution_limit = 0
         execution_counter = 0
+
         if not self.has_discrete_output and not self.has_output:
             execution_limit = len(programs_copy)
         start_time = time.time()
@@ -389,6 +399,9 @@ class BaseIndividual(AbstractIndividual):
             if current_program is None:
                 # End, there are no more programs
                 break
+
+            if self.analysis:
+                self.execution_info[-1].append(current_program.id)
 
             temp_output = current_program.program_eval(self.internal_state)
 
@@ -525,3 +538,19 @@ class BaseIndividual(AbstractIndividual):
             output_list = output_list[0]
         return output_list
 
+    def get_programs_info(self):
+        info_list = []
+        for index, program in enumerate(self.programs):
+            codes = program.tooltip_text()
+            entry = [index, program.pos, codes]
+            info_list.append(entry)
+        return info_list
+
+    def get_execution_info(self):
+        config_handler = ConfigHandler(self.config)
+        fitness_obj = config_handler.get_fitness_obj()
+        self.execution_info = []
+        self.analysis = True
+        fitness = fitness_obj.evaluate(self)
+        self.analysis = False
+        return fitness, self.execution_info

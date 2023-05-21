@@ -11,6 +11,7 @@ Ideas/Notes                                                                     
 - Evolution of learning with memory using SGP. Evolving models to successfully solve problems after a few attempts      !
 - It's unclear to me whether output registers should be a part of the terminal set or not                               !!!!!!
 - The system DOES NOT work with strings. This can be added to the system in the future.                                 !!
+- Simplification step                                                                                                   !!
 
 ===================================================================================================================================
 Bug Notes                                                                                                               Importance

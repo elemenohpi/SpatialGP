@@ -5,6 +5,11 @@ from Fitness.AbstractFitness import AbstractFitness
 
 
 class SimpleProblem(AbstractFitness):
+    def settings(self):
+        return {
+            "optimization_goal": "min"
+        }
+
     def inputs(self):
         return {
             "radius": "float",

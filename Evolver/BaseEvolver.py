@@ -22,13 +22,12 @@ class BaseEvolver(AbstractEvolver):
         self.Log = eletility.Log()
 
     def run(self):
-        best_individual = None
 
         for generation in range(self.generations):
             log_msg = "\t{}: ".format(generation)
             average_fitness = self.update_population_fitness()
             self.sort_population()
-
+            self.save_pop()
             average_length = 0
             for individual in self.pop:
                 average_length += len(individual.programs)
@@ -51,7 +50,7 @@ class BaseEvolver(AbstractEvolver):
             self.tournament()
 
         try:
-            self.pickle_object(best_individual)
+            self.pickle_best(self.pop[0])
         except TypeError:
             pass
 
@@ -92,9 +91,11 @@ class BaseEvolver(AbstractEvolver):
         return sum_fitness/len(self.pop)
 
     def sort_population(self):
-        if self.config["optimization_goal"] == "min":
+        settings = self.fitness_obj.settings()
+        optimization_goal = settings["optimization_goal"]
+        if optimization_goal == "min":
             order = False
-        elif self.config["optimization_goal"] == "max":
+        elif optimization_goal == "max":
             order = True
         else:
             raise "Unknown optimization goal"
@@ -112,15 +113,17 @@ class BaseEvolver(AbstractEvolver):
     def save_log(self, gen, log):
         destination = self.config["evo_file"]
         if gen == 0:
-            title = "gen, fitness, info1, info2, avg\n"
+            title = "gen,best,avg,best_size,avg_size\n"
             self.Files.writeTruncate(destination, title + repr(gen) + ", " + log + "\n")
         else:
             self.Files.writeLine(destination, repr(gen) + ", " + log)
 
     def sort_tournament(self, tournament):
-        if self.config["optimization_goal"] == "min":
+        settings = self.fitness_obj.settings()
+        optimization_goal = settings["optimization_goal"]
+        if optimization_goal == "min":
             order = False
-        elif self.config["optimization_goal"] == "max":
+        elif optimization_goal == "max":
             order = True
         else:
             raise "Unknown optimization goal"
@@ -177,7 +180,23 @@ class BaseEvolver(AbstractEvolver):
                 program.spatial_mutation()
         pass
 
-    def pickle_object(self, obj):
+    def pickle_best(self, obj):
         destination = self.config["best_object"]
         with open(destination, 'wb') as object_file:
             pickle.dump(obj, object_file)
+
+    def pickle_object(self, obj, title):
+        destination = title
+        with open(destination, 'wb') as object_file:
+            pickle.dump(obj, object_file)
+
+    def save_pop(self):
+        for index, individual in enumerate(self.pop):
+            pop_save_path = self.config["pop_save_path"]
+            if pop_save_path[-1] != "/":
+                pop_save_path += "/"
+            destination = pop_save_path + "model_" + str(index) + ".sgp"
+            self.pickle_object(individual, destination)
+
+
+

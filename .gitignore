@@ -154,3 +154,5 @@ cython_debug/
 
 # Single files
 notes.txt
+/Output/
+/Saved Experiments/

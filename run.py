@@ -1,12 +1,15 @@
 import argparse
+import datetime
 import os
+import pickle
 import random
+import shutil
 from os import listdir
 from os.path import isfile, join
 from subprocess import call
 
 from eletility import ConfigParser, Files
-
+from Handlers.VisualizationHandler import VisualizationHandler
 from spatial_gp import SpatialGP
 
 
@@ -47,9 +50,68 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-generations", help="Number of generations")
     parser.add_argument("-compare", help="Compares the evo files and returns some stats about the best run. "
                                          "Uses the optimization goal specified in the config.ini file")
+    parser.add_argument("-analyze", help="Analyzes a given pickled model")
+    parser.add_argument("-test_model", help="Tests a given model")
+    parser.add_argument("-save_output", help="Saves the current experiment files in Output", action='store_true')
 
     args = parser.parse_args()
     return args
+
+
+def analyze_model(path_to_model):
+    vis_handler = VisualizationHandler()
+    vis_handler.analyze_model(path_to_model)
+
+
+def test_model(path):
+    pickled_object = open(path, "rb")
+    model_object = pickle.load(pickled_object)
+    inputs = model_object.fitness_obj.inputs()
+    manual_inputs = []
+    print("Please enter the values for the following inputs:")
+    for inp in inputs:
+        if model_object.is_array(inp):
+            inp_array = []
+            name = model_object.get_array_name(inp)
+            length = model_object.get_array_length(inp)
+            for i in range(length):
+                inp_value = float(input(f"{name}[{length}]: "))
+                inp_array.append(inp_value)
+            manual_inputs.append(inp_array)
+        else:
+            inp_value = float(input(f"{inp}: "))
+            manual_inputs.append(inp_value)
+    output = model_object.evaluate(manual_inputs)
+    print("Output:\n", output)
+
+
+def save_files():
+    # Get the current date and time
+    current_datetime = datetime.datetime.now()
+
+    # Format the date and time as a string
+    timestamp = current_datetime.strftime("%Y-%m-%d %H-%M-%S")
+    directory = f'Saved Experiments/{timestamp}'
+    os.makedirs(directory)
+    copy_directory_contents("Output/", directory)
+
+
+def copy_directory_contents(source_dir, destination_dir):
+    # Create the destination directory if it doesn't exist
+    if not os.path.exists(destination_dir):
+        os.makedirs(destination_dir)
+
+    # Get the list of files and directories in the source directory
+    contents = os.listdir(source_dir)
+
+    # Copy each file and directory to the destination directory
+    for item in contents:
+        source_item = os.path.join(source_dir, item)
+        destination_item = os.path.join(destination_dir, item)
+        if os.path.isdir(source_item):
+            shutil.copytree(source_item, destination_item)
+        else:
+            shutil.copy2(source_item, destination_item)
 
 
 def manage_args(args):
@@ -102,6 +164,12 @@ It handles all of the command line arguments and calls other functions as needed
     # Compare Evo output files
     elif args.compare:
         compare_evo(args.compare, config)
+    elif args.analyze:
+        analyze_model(args.analyze)
+    elif args.test_model:
+        test_model(args.test_model)
+    elif args.save_output:
+        save_files()
     # Run SpatialGP
     else:
         sgp = SpatialGP(config)

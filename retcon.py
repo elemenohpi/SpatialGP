@@ -44,7 +44,6 @@ class Retcon:
 
     def eval(self, shared_memory):
         statement_counter = 0
-
         for i in range(self.condition_depth):
             condition_string = ""
             j = 0
@@ -70,7 +69,6 @@ class Retcon:
                 else:
                     raise ValueError("Unknown candidate: ", candidate)
                 j += 1
-
             try:
                 if eval(condition_string):
                     ret_val = self.statements[statement_counter]
@@ -80,7 +78,8 @@ class Retcon:
                 else:
                     statement_counter += 1
             except Exception as e:
-                raise Exception("Condition string error", condition_string, "Error message:", e)
+                msg = f'Condition string error: "{condition_string}"\nMessage: {e}'
+                raise Exception(msg)
             if i == self.condition_depth - 1:
                 ret_val = self.statements[statement_counter]
                 if ret_val in shared_memory.keys():

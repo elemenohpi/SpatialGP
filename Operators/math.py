@@ -444,3 +444,48 @@ def op_tan(a):
 
     def annotation(self):
         return "{} = math.tan({})"
+
+
+class OP_POWER(AbstractOperator):
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def eval(self, a):
+        if a[0] == float("inf"):
+            a[0] = sys.float_info.max
+        elif a[0] == float("-inf"):
+            a[0] = -1 * sys.float_info.max
+        try:
+            ans = a[0] ** a[1]
+        except OverflowError:
+            ans = sys.float_info.max
+
+        if ans == float("inf") or ans == float("-inf"):
+            ans = sys.float_info.max
+
+        return ans
+
+    def demands(self):
+        return [
+            "float",
+            "int"
+        ]
+
+    @staticmethod
+    def op_code():
+        code = """
+# returns exp of the given number
+def op_power(a, b):
+\treturn a ** b
+"""
+        return code
+
+    def products(self):
+        return ["float"]
+
+    def name(self):
+        return "OP_POWER"
+
+    def annotation(self):
+        return "{} = {} ** {}"
