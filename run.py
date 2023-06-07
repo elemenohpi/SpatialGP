@@ -8,6 +8,8 @@ from os import listdir
 from os.path import isfile, join
 from subprocess import call
 
+import paramiko
+
 from eletility import ConfigParser, Files
 from Handlers.VisualizationHandler import VisualizationHandler
 from spatial_gp import SpatialGP
@@ -52,6 +54,7 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-test_model", help="Tests a given model")
     parser.add_argument("-save_output", help="Saves the current experiment files in Output", action='store_true')
     parser.add_argument("-pop_save_path", help="Path to where the population pickle files are saved")
+    parser.add_argument("-download_hpcc", help="Downloads experiment files from HPCC", action='store_true')
     args = parser.parse_args()
     return args
 
@@ -110,6 +113,20 @@ def copy_directory_contents(source_dir, destination_dir):
             shutil.copytree(source_item, destination_item)
         else:
             shutil.copy2(source_item, destination_item)
+
+
+def download_hpcc():
+    # # ToDo:: Implement
+    # raise NotImplementedError("Not Implemented")
+    username = input("Username: ")
+    password = input("Username: ")
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect("hpcc.msu.edu", port=22, username=username, password=password)
+    sftp = ssh.open_sftp()
+    sftp.get("~/SpatialGP/Output/", "D:/Projects/SGP/SpatialGP/Saved Experiments/")
+    sftp.close()
+    ssh.close()
 
 
 def manage_args(args):
@@ -171,6 +188,8 @@ It handles all of the command line arguments and calls other functions as needed
         test_model(args.test_model)
     elif args.save_output:
         save_files()
+    elif args.download_hpcc:
+        download_hpcc()
     # Run SpatialGP
     else:
         sgp = SpatialGP(config)
@@ -325,6 +344,8 @@ def hpcc(reps, hours, generations, seed, title, config):
         os.mkdir("Output/{}/Slurm".format(title))
         os.mkdir("Output/{}/Evo".format(title))
         os.mkdir("Output/{}/Population".format(title))
+        for rep in range(reps):
+            os.mkdir("Output/{}/Population/P{}".format(title, rep))
         os.mkdir("Output/{}/Object".format(title))
         os.mkdir("Output/{}/Executable".format(title))
         os.mkdir("Output/{}/Subs".format(title))
@@ -372,7 +393,7 @@ def hpcc(reps, hours, generations, seed, title, config):
         file.write("\n########## Command Lines to Run ##########\n\n")
         file.write("module purge")
         file.write("module load Conda/3")
-        file.write("conda activate mujoco_env")
+        file.write("conda activate SpatialGP")
         current_file_path = os.path.abspath(__file__)
         directory_name = os.path.dirname(current_file_path)
         file.write("cd ~/{}\n".format(directory_name))
@@ -380,7 +401,7 @@ def hpcc(reps, hours, generations, seed, title, config):
         output = "Output/{}/Executable/exec_{}.py".format(title, i)
         pickleo = "Output/{}/Object/pickled_{}.sgp".format(title, i)
         evo = "Output/{}/Evo/evo_{}.csv".format(title, i)
-        pop_save_path = f"Output/{title}/Population/"
+        pop_save_path = f"Output/{title}/Population/P{i}/"
         file.write(
             "srun -n 1 python run.py -generations {} -output {} -pickle {} -evo {} -seed {} -pop_save_path {} -config "
             "{}\n".format(

@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +21,7 @@ def create_evo_plots(file_path, output_path):
     ax.legend()
 
     # Display the plot
-    plt.savefig(output_path+"best_plot.png")
+    plt.savefig(output_path + "best_plot.png")
     plt.close()
 
     fig, ax = plt.subplots()
@@ -31,7 +33,7 @@ def create_evo_plots(file_path, output_path):
     ax.legend()
 
     # Display the plot
-    plt.savefig(output_path+"avg_plot.png")
+    plt.savefig(output_path + "avg_plot.png")
 
 
 def create_heatmap(coordinates, file_path, radius):
@@ -73,3 +75,66 @@ def create_heatmap(coordinates, file_path, radius):
     plt.close()
 
 
+def get_avg_dataframe(path_to_files):
+    files = [file for file in os.listdir(path_to_files) if file.endswith('.csv')]
+    dfs = []
+    for file in files:
+        file_path = os.path.join(path_to_files, file)
+        df = pd.read_csv(file_path)
+        dfs.append(df)
+
+    combined_df = pd.concat(dfs)
+    average_best = combined_df.groupby('gen')['best'].mean().reset_index()
+
+    return average_best
+
+
+def compare_experiments(path, key=None):
+    directories = list_directories(path, key)
+    plot_data = []
+    for directory in directories:
+        avg_dataframe = get_avg_dataframe(os.path.join(path, directory, "Evo"))
+        directory_data = [directory, avg_dataframe]
+        plot_data.append(directory_data)
+
+    # Plotting the line plot
+    fig, ax = plt.subplots()
+    for directory_data in plot_data:
+        ax.plot(directory_data[1]["gen"], directory_data[1]["best"], label=directory_data[0])
+
+    # Set plot labels and legend
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Fitness")
+    ax.set_title("Fitness over generation for the best individual")
+    ax.legend()
+
+    # Display the plot
+    plt.show()
+    plt.close()
+
+
+def list_directories(path, key):
+    directories = []
+    for entry in os.listdir(path):
+        if os.path.isdir(os.path.join(path, entry)):
+            directories.append(entry)
+    parsed_directories = []
+    for directory in directories:
+        if key is not None:
+            if key not in directory:
+                continue
+        parsed_directories.append(directory)
+    return parsed_directories
+
+
+if __name__ == "__main__":
+    equation = "E9"
+    compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation")
+    # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_mutation")
+    # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_nonspatial_mutation")
+    # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_spatial_mutation")
+    # compare_experiments(f"../HPCC Experiments/{equation}", "nocrossover")
+    compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
+    compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
+
+    pass
