@@ -8,8 +8,6 @@ from os import listdir
 from os.path import isfile, join
 from subprocess import call
 
-import paramiko
-
 from eletility import ConfigParser, Files
 from Handlers.VisualizationHandler import VisualizationHandler
 from spatial_gp import SpatialGP
@@ -54,7 +52,6 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-test_model", help="Tests a given model")
     parser.add_argument("-save_output", help="Saves the current experiment files in Output", action='store_true')
     parser.add_argument("-pop_save_path", help="Path to where the population pickle files are saved")
-    parser.add_argument("-download_hpcc", help="Downloads experiment files from HPCC", action='store_true')
     args = parser.parse_args()
     return args
 
@@ -113,20 +110,6 @@ def copy_directory_contents(source_dir, destination_dir):
             shutil.copytree(source_item, destination_item)
         else:
             shutil.copy2(source_item, destination_item)
-
-
-def download_hpcc():
-    # # ToDo:: Implement
-    # raise NotImplementedError("Not Implemented")
-    username = input("Username: ")
-    password = input("Username: ")
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect("hpcc.msu.edu", port=22, username=username, password=password)
-    sftp = ssh.open_sftp()
-    sftp.get("~/SpatialGP/Output/", "D:/Projects/SGP/SpatialGP/Saved Experiments/")
-    sftp.close()
-    ssh.close()
 
 
 def manage_args(args):
@@ -188,8 +171,6 @@ It handles all of the command line arguments and calls other functions as needed
         test_model(args.test_model)
     elif args.save_output:
         save_files()
-    elif args.download_hpcc:
-        download_hpcc()
     # Run SpatialGP
     else:
         sgp = SpatialGP(config)
