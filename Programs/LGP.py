@@ -25,6 +25,7 @@ class LGP(AbstractPrograms):
         self.outputs = config_handler.parse_outputs()
 
         self.statement_output_pool = self.create_statement_output_pool()
+
         self.statements = []
         self.program_type = "I"
 
@@ -145,8 +146,7 @@ class LGP(AbstractPrograms):
             self.statements[-1].mutate()
         else:
             return_value_selection_pool = copy.deepcopy(self.terminal_set)
-            print(return_value_selection_pool)
-            exit("162 LGP")
+            # ToDo:: At some point I had an exit() here but I removed it because I felt like this code should be fine
             if "float" in return_value_selection_pool.keys() and len(return_value_selection_pool["float"]) > 0:
                 return_var = random.choice(return_value_selection_pool["float"])
             elif "int" in return_value_selection_pool.keys() and len(return_value_selection_pool["int"]) > 0:
@@ -176,17 +176,51 @@ class LGP(AbstractPrograms):
     def distance_to_pos(self, source_pos, pos):
         return math.sqrt((pos[0] - source_pos[0]) ** 2 + (pos[1] - source_pos[1]) ** 2)
 
+    def find_random_spatial_position(self):
+        init_radius = float(self.config["init_radius"])
+        if self.config["topology"] == "circle":
+            return self.get_point_on_circle(init_radius)
+        elif self.config["topology"] == "ring":
+            return self.get_point_on_ring(init_radius)
+        elif self.config["topology"] == "line":
+            return self.get_point_on_line(init_radius)
+        return None
+
+    def get_point_on_line(self, d):
+        x = random.uniform(-d, d)  # Generate a random x-coordinate within the range [-d, d]
+        y = 0  # Since the point lies on the x-axis, y-coordinate is 0
+        return x, y
+
+    def get_point_on_ring(self, r):
+        angle = 2 * math.pi * random.random()  # Generate a random angle between 0 and 2*pi
+        x = r * math.cos(angle)  # Calculate x-coordinate
+        y = r * math.sin(angle)  # Calculate y-coordinate
+        return x, y
+
+    def get_point_on_circle(self, r):
+        # Generate a random angle between 0 and 2pi
+        theta = random.uniform(0, 2 * math.pi)
+        # Generate a random radius between 0 and r
+        s = r * math.sqrt(random.uniform(0, 1))
+        # Calculate the x and y coordinates
+        x = s * math.cos(theta)
+        y = s * math.sin(theta)
+        return x, y
+
     def spatial_mutation(self):
-        random_step_size = int(self.config["random_walk_step_size"])
+        # The commented code is for the random walk approach. Possibly this should be removed
+        # random_step_size = int(self.config["random_walk_step_size"])
         radius = float(self.config["init_radius"])
         rand = random.random()
         if rand < 0.5 or self.has_discrete_output:
-            # change pos with step
-            random_step_x = random.randint(-1 * random_step_size, random_step_size)
-            random_step_y = random.randint(-1 * random_step_size, random_step_size)
-            new_pos = (random_step_x + self.pos[0], self.pos[1] + random_step_y)
-            if not self.distance_to_pos((0, 0), new_pos) > radius:
-                self.pos = (self.pos[0] + random_step_x, self.pos[1] + random_step_y)
+            # change pos
+            # random_step_x = random.randint(-1 * random_step_size, random_step_size)
+            # random_step_y = random.randint(-1 * random_step_size, random_step_size)
+            # new_pos = (random_step_x + self.pos[0], self.pos[1] + random_step_y)
+            # if not self.distance_to_pos((0, 0), new_pos) > radius:
+            #     self.pos = (self.pos[0] + random_step_x, self.pos[1] + random_step_y)
+            new_pos = self.find_random_spatial_position()
+            self.pos = new_pos
         else:
             # change i/o
             if self.program_type == "O":
@@ -205,10 +239,11 @@ class LGP(AbstractPrograms):
         return_val = None
         if self.statements[-1].__class__.__name__ == "Retcon":
             return_val = self.statements[-1].eval(internal_memory)
-        elif self.statements[-1].isnumeric():
-            return_val = float(self.statements[-1])
         else:
-            return_val = internal_memory[self.statements[-1]]
+            try:
+                return_val = float(self.statements[-1])
+            except ValueError:
+                return_val = internal_memory[self.statements[-1]]
 
         try:
             cost_formula = self.config["cost_formula"]
@@ -235,10 +270,11 @@ class LGP(AbstractPrograms):
             if statement == self.statements[-1]:
                 if statement.__class__.__name__ == "Retcon":
                     program_output = statement.eval(internal_state)
-                elif statement.isnumeric():
-                    program_output = float(statement)
                 else:
-                    program_output = internal_state[statement]
+                    try:
+                        program_output = float(statement)
+                    except ValueError:
+                        program_output = internal_state[statement]
                 break
             if skip_next:
                 skip_next = False
@@ -261,13 +297,15 @@ class LGP(AbstractPrograms):
     def get_operand_value(self, operands, internal_state):
         value_list = []
         for operand in operands:
-            if operand.isnumeric():
-                value_list.append(float(operand))
-            else:
+            try:
+                value = float(operand)
+                value_list.append(value)
+            except ValueError:
                 try:
                     value_list.append(internal_state[operand])
                 except KeyError:
-                    value_list.append(operand)
+                    raise KeyError(f"Variable {operand} is not numerical and does not exist in the internal state "
+                                   f"memory")
         return value_list
 
     def annotation(self):

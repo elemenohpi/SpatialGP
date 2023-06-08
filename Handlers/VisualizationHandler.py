@@ -34,12 +34,14 @@ class VisualizationHandler:
         all_annotations = []
         all_fitness = []
         all_individuals = []
+        all_exe_p_count = []
+        all_exe_s_count = []
         for file_id, path_to_model in enumerate(files):
             pickled_object = open(path_to_model, "rb")
             model_object = pickle.load(pickled_object)
             # get_execution_info should run first in case you want to tag programs with an id before proceeding. Perhaps
             # this could be moved elsewhere?
-            fitness, execution_info = model_object.get_execution_info()
+            fitness, execution_info, additional_info = model_object.get_execution_info()
             program_info = model_object.get_programs_info()
 
             radius = float(model_object.config["init_radius"])
@@ -59,13 +61,15 @@ class VisualizationHandler:
             all_annotations.append(annotations)
             all_fitness.append(fitness)
             all_individuals.append(model_object)
+            all_exe_p_count.append(additional_info["exe_p_count"])
+            all_exe_s_count.append(additional_info["exe_s_count"])
 
         heatmap_output_path = path_to_experiment + "Analysis/heatmap.png"
 
         self.generate_heatmap(all_individuals, heatmap_output_path)
 
         self.generate_html_file(path_to_html, canvases, all_coordinates, all_annotations, all_execution_info,
-                                all_fitness)
+                                all_fitness, all_exe_p_count, all_exe_s_count)
         full_path = os.path.abspath(path_to_html)
         os.startfile(full_path)
 
@@ -134,7 +138,8 @@ class VisualizationHandler:
         '''
         return return_text
 
-    def generate_coordinate_system(self, canvas_id, radius, circle_coordinates, index, execution_info, fitness):
+    def generate_coordinate_system(self, canvas_id, radius, circle_coordinates, index, execution_info, fitness, all_p,
+                                   all_s):
         execution_info_set = set(tuple(sublist) for sublist in execution_info[index])
         number_of_programs = len(circle_coordinates)
         number_of_executions = len(execution_info[index])
@@ -158,6 +163,10 @@ class VisualizationHandler:
                 Number of Evaluations: {number_of_executions}
                 <br>
                 Number of Unique Execution Orders: {unique_execution_flows}
+                <br>
+                Number of Executed Programs: {all_p[index]}
+                <br>
+                Number of Executed Statements: {all_s[index]}
             </p>
             
             {self.generate_evo_plot_html(index)}
@@ -198,13 +207,14 @@ class VisualizationHandler:
         circle_style = f'width: {2 * r}px; height: {2 * r}px; margin-top: -{r}px; margin-left: -{r}px;'
         return f'<div class="circle" style="{circle_style}" data-canvas="{canvas_id}"></div>'
 
-    def generate_html_file(self, file_name, canvases, circle_coordinates, program_annotations, execution_info, fitness):
+    def generate_html_file(self, file_name, canvases, circle_coordinates, program_annotations, execution_info, fitness,
+                           all_p_count, all_s_count):
 
         html_content = self.generate_html_headers()
 
         for index, canvas in enumerate(canvases):
             html_content += self.generate_coordinate_system(canvas['id'], canvas['radius'], circle_coordinates[index],
-                                                            index, execution_info, fitness)
+                                                            index, execution_info, fitness, all_p_count, all_s_count)
 
         html_content += self.generate_html_footer(program_annotations)
 
@@ -221,7 +231,7 @@ class VisualizationHandler:
                 const element = document.getElementById('{element_id}');
                 element.addEventListener('mouseover', () => {{
                     const tooltip = document.createElement('div');
-                    tooltip.innerText = '{escaped_text}';
+                    tooltip.innerText = "{escaped_text}";
                     tooltip.classList.add('tooltip');
                     element.appendChild(tooltip);
                 }});

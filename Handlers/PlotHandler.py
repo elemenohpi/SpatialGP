@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import ticker
 from matplotlib.patches import Circle
 
 
@@ -32,8 +33,20 @@ def create_evo_plots(file_path, output_path):
     ax.set_title("Fitness over generation for the average population")
     ax.legend()
 
+    # formatter = ticker.ScalarFormatter(useMathText=True)
+    # formatter.set_scientific(True)
+    # # formatter.set_powerlimits((-3, 3))
+    #
+    # # Apply the formatter to the y-axis
+    # plt.gca().yaxis.set_major_formatter(formatter)
+
+    # Set the desired number of ticks on the y-axis
+    num_ticks = 10
+    plt.gca().yaxis.set_major_locator(plt.MaxNLocator(num_ticks))
+
     # Display the plot
     plt.savefig(output_path + "avg_plot.png")
+    plt.close()
 
 
 def create_heatmap(coordinates, file_path, radius):
@@ -58,7 +71,7 @@ def create_heatmap(coordinates, file_path, radius):
     plt.colorbar()
 
     # Plot the circle
-    circle = Circle((0, 0), radius, edgecolor='white', facecolor='none')
+    circle = Circle((0, 0), radius, edgecolor='blue', facecolor='none')
     plt.gca().add_patch(circle)
 
     # Add x and y axes

@@ -15,7 +15,10 @@ class BaseIndividual(AbstractIndividual):
     def __init__(self, config, programs_class):
         super().__init__(config, programs_class)
         self.analysis = False
-        self.execution_info = []
+        self.analysis_execution_info = []
+        self.analysis_additional_info = {}
+        self.analysis_executed_program_count = 0
+        self.analysis_executed_statements_count = 0
         self.has_output = False
         self.config = config
         self.programs_class = programs_class
@@ -41,7 +44,7 @@ class BaseIndividual(AbstractIndividual):
         for i in range(program_count):
             program = self.programs_class(self.config)
             program.generate()
-            program.pos = self.random_point_in_circle(self.init_radius)
+            program.pos = program.find_random_spatial_position()
             if not self.has_discrete_output:
                 if random.random() < self.output_ratio:
                     program.program_type = "O"
@@ -53,18 +56,8 @@ class BaseIndividual(AbstractIndividual):
                 program.program_type = "O"
                 program.discrete_output = possible_discrete_output
                 program.generate()
-                program.pos = self.random_point_in_circle(self.init_radius)
+                program.pos = program.find_random_spatial_position()
                 self.programs.append(program)
-
-    def random_point_in_circle(self, r):
-        # Generate a random angle between 0 and 2pi
-        theta = random.uniform(0, 2 * math.pi)
-        # Generate a random radius between 0 and r
-        s = r * math.sqrt(random.uniform(0, 1))
-        # Calculate the x and y coordinates
-        x = s * math.cos(theta)
-        y = s * math.sin(theta)
-        return x, y
 
     def get_annotation(self):
         model_annotation = ""
@@ -296,8 +289,9 @@ class BaseIndividual(AbstractIndividual):
         return full_program_txt
 
     def crossover(self, parent_b):
+        raise NotImplementedError("Crossover should change considering the new additions to the topology")
         radius = int(self.init_radius / 2)
-        rand_x, rand_y = self.random_point_in_circle(radius)
+        rand_x, rand_y = self.find_random_spatial_position()
         a_inside_programs = []
         a_outside_programs = []
         b_inside_programs = []
@@ -359,7 +353,7 @@ class BaseIndividual(AbstractIndividual):
             return
         program = self.programs_class(self.config)
         program.generate()
-        program.pos = self.random_point_in_circle(radius)
+        program.pos = program.find_random_spatial_position()
         if not self.has_discrete_output:
             if random.random() < self.output_ratio:
                 program.program_type = "O"
@@ -374,7 +368,7 @@ class BaseIndividual(AbstractIndividual):
 
         # For analysis purposes only
         if self.analysis:
-            self.execution_info.append([])
+            self.analysis_execution_info.append([])
             for index, program in enumerate(self.programs):
                 program.id = index
 
@@ -401,7 +395,9 @@ class BaseIndividual(AbstractIndividual):
                 break
 
             if self.analysis:
-                self.execution_info[-1].append(current_program.id)
+                self.analysis_execution_info[-1].append(current_program.id)
+                self.analysis_executed_program_count += 1
+                self.analysis_executed_statements_count += len(current_program.statements)
 
             temp_output = current_program.program_eval(self.internal_state)
 
@@ -549,8 +545,12 @@ class BaseIndividual(AbstractIndividual):
     def get_execution_info(self):
         config_handler = ConfigHandler(self.config)
         fitness_obj = config_handler.get_fitness_obj()
-        self.execution_info = []
+        self.analysis_execution_info = []
         self.analysis = True
         fitness = fitness_obj.evaluate(self)
         self.analysis = False
-        return fitness, self.execution_info
+        self.analysis_additional_info = {
+            "exe_p_count": self.analysis_executed_program_count,
+            "exe_s_count": self.analysis_executed_statements_count
+        }
+        return fitness, self.analysis_execution_info, self.analysis_additional_info
