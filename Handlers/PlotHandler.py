@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import ticker
 from matplotlib.patches import Circle
+from scipy import stats
 
 
 def create_evo_plots(file_path, output_path):
@@ -88,7 +89,7 @@ def create_heatmap(coordinates, file_path, radius):
     plt.close()
 
 
-def get_avg_dataframe(path_to_files):
+def get_avg_dataframe(path_to_files, max_gen):
     files = [file for file in os.listdir(path_to_files) if file.endswith('.csv')]
     dfs = []
     for file in files:
@@ -97,23 +98,52 @@ def get_avg_dataframe(path_to_files):
         dfs.append(df)
 
     combined_df = pd.concat(dfs)
-    average_best = combined_df.groupby('gen')['best'].mean().reset_index()
+    average_best = combined_df.groupby('gen')['best'].median().reset_index()
+    average_best = average_best[:max_gen]
 
+    # Calculate confidence interval
+    confidence_interval = []
+    all_percentiles = []
+    for gen in average_best['gen']:
+        values = np.array(combined_df[combined_df['gen'] == gen]['best'])
+        n = len(values)  # Sample size
+        mean = np.mean(values)  # Sample mean
+        sem = stats.sem(values)  # Standard error of the mean
+        ci = stats.t.interval(0.95, n - 1, loc=mean, scale=sem)  # Calculate confidence interval
+        confidence_interval.append(ci)
+        percentiles = [25, 75]
+        percentile_values = np.percentile(values, percentiles)
+        all_percentiles.append(percentile_values)
+
+    average_best['confidence_interval'] = confidence_interval
+    average_best['percentiles'] = all_percentiles
     return average_best
 
 
-def compare_experiments(path, key=None):
+def compare_experiments(path, n=100, key=None):
     directories = list_directories(path, key)
     plot_data = []
     for directory in directories:
-        avg_dataframe = get_avg_dataframe(os.path.join(path, directory, "Evo"))
-        directory_data = [directory, avg_dataframe]
+        median_dataframe = get_avg_dataframe(os.path.join(path, directory, "Evo"), n)
+        directory_data = [directory, median_dataframe]
         plot_data.append(directory_data)
 
     # Plotting the line plot
     fig, ax = plt.subplots()
-    for directory_data in plot_data:
-        ax.plot(directory_data[1]["gen"], directory_data[1]["best"], label=directory_data[0])
+    colors = ["blue", "red", "green", "brown", "purple", "yellow", "cyan"]
+    for index, directory_data in enumerate(plot_data):
+        gen_data = directory_data[1]["gen"]
+        median_best = np.array(directory_data[1]["best"])
+        confidence_interval = np.array(directory_data[1]["confidence_interval"])
+        lower_bound, upper_bound = zip(*confidence_interval)
+        percentiles = directory_data[1]["percentiles"]
+        lower, upper = zip(*percentiles)
+
+        ax.plot(gen_data, median_best, label=directory_data[0])
+        # ax.errorbar(gen_data, median_best, yerr=[median_best - lower_bound, upper_bound -
+        #                                          median_best], fmt='.', capsize=4)
+        plt.fill_between(gen_data, lower, upper, color=colors[index],
+                         alpha=0.1)
 
     # Set plot labels and legend
     ax.set_xlabel("Generation")
@@ -142,12 +172,12 @@ def list_directories(path, key):
 
 if __name__ == "__main__":
     equation = "E9"
-    compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation")
+    # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation")
     # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_mutation")
     # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_nonspatial_mutation")
     # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_spatial_mutation")
     # compare_experiments(f"../HPCC Experiments/{equation}", "nocrossover")
-    compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
-    compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
-
+    # compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
+    # compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
+    compare_experiments(f"../../HPCC_Experiments/", 100, "mutation_med_high")
     pass

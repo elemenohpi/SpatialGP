@@ -27,7 +27,10 @@ class BaseIndividual(AbstractIndividual):
         self.init_lgp_size_min = int(self.config["init_lgp_size_min"])
         self.init_lgp_size_max = int(self.config["init_lgp_size_max"])
         self.init_radius = int(self.config["init_radius"])
-        self.output_ratio = float(self.config["output_ratio"])
+        try:
+            self.output_ratio = float(self.config["output_ratio"])
+        except ValueError:
+            self.output_ratio = self.config["output_ratio"]
         self.programs = []
         config_handler = ConfigHandler(config)
         self.inputs = config_handler.parse_inputs()
@@ -45,10 +48,14 @@ class BaseIndividual(AbstractIndividual):
             program = self.programs_class(self.config)
             program.generate()
             program.pos = program.find_random_spatial_position()
-            if not self.has_discrete_output:
+            if not self.has_discrete_output and not self.output_ratio == "single":
                 if random.random() < self.output_ratio:
                     program.program_type = "O"
             self.programs.append(program)
+
+        if self.output_ratio == "single":
+            random_output_index = random.randint(0, len(self.programs)-1)
+            self.programs[random_output_index].program_type = "O"
 
         if self.has_discrete_output:
             for possible_discrete_output in self.outputs:
@@ -354,7 +361,7 @@ class BaseIndividual(AbstractIndividual):
         program = self.programs_class(self.config)
         program.generate()
         program.pos = program.find_random_spatial_position()
-        if not self.has_discrete_output:
+        if not self.has_discrete_output and not self.output_ratio == "single":
             if random.random() < self.output_ratio:
                 program.program_type = "O"
         self.programs.append(program)

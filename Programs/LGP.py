@@ -222,11 +222,15 @@ class LGP(AbstractPrograms):
             new_pos = self.find_random_spatial_position()
             self.pos = new_pos
         else:
-            # change i/o
-            if self.program_type == "O":
-                self.program_type = "I"
+            if not self.config["output_ratio"] == "single":
+                # change i/o
+                if self.program_type == "O":
+                    self.program_type = "I"
+                else:
+                    self.program_type = "O"
             else:
-                self.program_type = "O"
+                # ToDo:: For now lets not change output program
+                pass
 
     def cost(self, source_pos, internal_memory):
         max_distance = 2 * float(self.config["init_radius"])
