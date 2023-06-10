@@ -15,6 +15,7 @@ Ideas/Notes                                                                     
 - Autotune system                                                                                                       !!!!
 - Try, only one output program method. Different output methods                                                         !!!!!!!
 - Removed randomwalk for topology addition. Should we still use random walk?                                            !!!!
+- Change evolution of spatial behavior to a hill climbing mechanism.                                                    !!!!!!!!!!!!!!!!!!!
 
 ===================================================================================================================================
 Bug Notes                                                                                                               Importance

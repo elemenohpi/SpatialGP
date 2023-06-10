@@ -24,7 +24,11 @@ class VisualizationHandler:
         path_to_models = path_to_experiment + "Population/"
         evo_file = path_to_experiment + "evo.csv"
         output_path = path_to_experiment + "Analysis/"
-        create_evo_plots(evo_file, output_path)
+        try:
+            create_evo_plots(evo_file, output_path)
+        except FileNotFoundError:
+            evo_file = path_to_experiment + "Evo/evo_0.csv"
+            create_evo_plots(evo_file, output_path)
         files = self.get_files_in_path(path_to_models)
         # ToDo::Make dynamic
         path_to_html = "Output/Analysis/analysis.html"

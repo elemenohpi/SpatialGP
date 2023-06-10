@@ -179,5 +179,5 @@ if __name__ == "__main__":
     # compare_experiments(f"../HPCC Experiments/{equation}", "nocrossover")
     # compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
     # compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
-    compare_experiments(f"../../HPCC_Experiments/", 100, "mutation_med_high")
+    compare_experiments(f"../../HPCC_Experiments/", 100, "circle_mutation")
     pass

@@ -48,7 +48,7 @@ class BaseIndividual(AbstractIndividual):
             program = self.programs_class(self.config)
             program.generate()
             program.pos = program.find_random_spatial_position()
-            if not self.has_discrete_output and not self.output_ratio == "single":
+            if not self.has_discrete_output and not self.output_ratio == "single" and not self.output_ratio == "none":
                 if random.random() < self.output_ratio:
                     program.program_type = "O"
             self.programs.append(program)
@@ -361,7 +361,7 @@ class BaseIndividual(AbstractIndividual):
         program = self.programs_class(self.config)
         program.generate()
         program.pos = program.find_random_spatial_position()
-        if not self.has_discrete_output and not self.output_ratio == "single":
+        if not self.has_discrete_output and not self.output_ratio == "single" and not self.output_ratio == "none":
             if random.random() < self.output_ratio:
                 program.program_type = "O"
         self.programs.append(program)

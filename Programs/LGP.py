@@ -222,7 +222,7 @@ class LGP(AbstractPrograms):
             new_pos = self.find_random_spatial_position()
             self.pos = new_pos
         else:
-            if not self.config["output_ratio"] == "single":
+            if not self.config["output_ratio"] == "single" and not self.config["output_ratio"] == "none":
                 # change i/o
                 if self.program_type == "O":
                     self.program_type = "I"
