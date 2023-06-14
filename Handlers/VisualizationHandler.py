@@ -46,6 +46,7 @@ class VisualizationHandler:
             # get_execution_info should run first in case you want to tag programs with an id before proceeding. Perhaps
             # this could be moved elsewhere?
             fitness, execution_info, additional_info = model_object.get_execution_info()
+            fitness = round(fitness, 10)
             program_info = model_object.get_programs_info()
 
             radius = float(model_object.config["init_radius"])

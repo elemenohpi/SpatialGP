@@ -94,15 +94,16 @@ class ConfigHandler:
         for register in registers:
             terminal_set["float"].append(register)
 
-        for output in outputs:
-            if outputs[output] in terminal_set.keys():
-                terminal_set[outputs[output]].append(output)
-            else:
-                terminal_set[outputs[output]] = output
+        # ToDo:: Isn't there any case in which we still want to have this?
+        # for output in outputs:
+        #     if outputs[output] in terminal_set.keys():
+        #         terminal_set[outputs[output]].append(output)
+        #     else:
+        #         terminal_set[outputs[output]] = output
         return terminal_set
 
     def parse_constants(self):
-        if self.config["constants"] != "None":
+        if self.config["constants"].lower() != "none":
             constant_pool = self.config["constants"].replace(" ", "").split(",")
         else:
             constant_pool = []

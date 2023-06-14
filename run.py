@@ -8,6 +8,7 @@ from os import listdir
 from os.path import isfile, join
 from subprocess import call
 
+from Handlers.TranslationHandler import TranslationHandler
 from eletility import ConfigParser, Files
 from Handlers.VisualizationHandler import VisualizationHandler
 from spatial_gp import SpatialGP
@@ -52,6 +53,8 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-test_model", help="Tests a given model")
     parser.add_argument("-save_output", help="Saves the current experiment files in Output", action='store_true')
     parser.add_argument("-pop_save_path", help="Path to where the population pickle files are saved")
+    parser.add_argument("-formulize", help="Simplifies and formulizes a given pickled SGP model into mathematical "
+                                           "equations (if applicable)")
     args = parser.parse_args()
     return args
 
@@ -110,6 +113,11 @@ def copy_directory_contents(source_dir, destination_dir):
             shutil.copytree(source_item, destination_item)
         else:
             shutil.copy2(source_item, destination_item)
+
+
+def formulize(path):
+    handler = TranslationHandler()
+    handler.formulize_individual(path)
 
 
 def manage_args(args):
@@ -171,6 +179,8 @@ It handles all of the command line arguments and calls other functions as needed
         test_model(args.test_model)
     elif args.save_output:
         save_files()
+    elif args.formulize:
+        formulize(args.formulize)
     # Run SpatialGP
     else:
         sgp = SpatialGP(config)

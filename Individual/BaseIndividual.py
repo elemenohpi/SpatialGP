@@ -295,64 +295,6 @@ class BaseIndividual(AbstractIndividual):
         full_program_txt += program.annotation()
         return full_program_txt
 
-    def crossover(self, parent_b):
-        raise NotImplementedError("Crossover should change considering the new additions to the topology")
-        radius = int(self.init_radius / 2)
-        rand_x, rand_y = self.find_random_spatial_position()
-        a_inside_programs = []
-        a_outside_programs = []
-        b_inside_programs = []
-        b_outside_programs = []
-        a_output_programs = []
-        b_output_programs = []
-        max_program_size = int(self.config["lgp_size_max"])
-        for program in self.programs:
-            if not self.has_discrete_output:
-                # The program does not have discrete outputs
-                discrete_output_condition = True
-            else:
-                # The program has discrete outputs
-                discrete_output_condition = not (program.program_type == "O")
-                if program.program_type == "O":
-                    # Basically, we let individual A to have its own output programs without any changes
-                    a_output_programs.append(program)
-            # This condition is set to be True if the program does not have discrete outputs or if the program type is I
-            if discrete_output_condition:
-                if distance_to_pos(program.pos, (rand_x, rand_y)) <= radius:
-                    a_inside_programs.append(program)
-                else:
-                    a_outside_programs.append(program)
-        for program in parent_b.programs:
-            if not self.has_discrete_output:
-                discrete_output_condition = True
-            else:
-                discrete_output_condition = not (program.program_type == "O")
-                if program.program_type == "O":
-                    b_output_programs.append(program)
-            if discrete_output_condition:
-                if distance_to_pos(program.pos, (rand_x, rand_y)) <= radius:
-                    b_inside_programs.append(program)
-                else:
-                    b_outside_programs.append(program)
-        offspring_a = BaseIndividual(self.config, self.programs_class)
-        offspring_b = BaseIndividual(self.config, self.programs_class)
-
-        ab_inside_outside_programs = a_inside_programs + b_outside_programs
-        ba_inside_outside_programs = a_outside_programs + b_inside_programs
-
-        if len(ab_inside_outside_programs) > max_program_size:
-            ab_inside_outside_programs = copy.deepcopy(ab_inside_outside_programs[:max_program_size - 1])
-
-        if len(ba_inside_outside_programs) > max_program_size:
-            ba_inside_outside_programs = copy.deepcopy(ba_inside_outside_programs[:max_program_size - 1])
-
-        offspring_a.programs = ab_inside_outside_programs + a_output_programs
-        offspring_b.programs = ba_inside_outside_programs + b_output_programs
-        offspring_a = copy.deepcopy(offspring_a)
-        offspring_b = copy.deepcopy(offspring_b)
-
-        return offspring_a, offspring_b
-
     def add_program(self):
         max_size = int(self.config["size_max"])
         radius = float(self.config["init_radius"])
@@ -492,10 +434,11 @@ class BaseIndividual(AbstractIndividual):
         config_handler = ConfigHandler(self.config)
         fitness_obj = config_handler.get_fitness_obj()
         input_scheme = fitness_obj.inputs()
+
         if len(input_scheme) != len(problem_inputs):
-            print(1)
             return False
         for index, input_element in enumerate(input_scheme.keys()):
+
             if self.is_array(input_element) and type(problem_inputs[index]) != list:
                 return False
             elif self.is_array(input_element) and type(problem_inputs[index]) == list \

@@ -12,10 +12,6 @@ class AbstractIndividual(ABC):
     pass
 
     @abstractmethod
-    def crossover(self, parent_b):
-        pass
-
-    @abstractmethod
     def add_program(self):
         pass
 

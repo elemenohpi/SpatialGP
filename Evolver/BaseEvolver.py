@@ -5,6 +5,7 @@ import random
 import eletility
 
 from Evolver.AbstractEvolver import AbstractEvolver
+from Evolver.Crossover import *
 
 
 class BaseEvolver(AbstractEvolver):
@@ -85,6 +86,7 @@ class BaseEvolver(AbstractEvolver):
                         break
 
             fitness = self.fitness_obj.evaluate(individual)
+            fitness = round(fitness, 10)
 
             self.pop[index].fitness = fitness
             sum_fitness += fitness
@@ -146,7 +148,7 @@ class BaseEvolver(AbstractEvolver):
             parent_a, parent_b = copy.deepcopy(sorted_tournament[0]), copy.deepcopy(sorted_tournament[1])
 
             if random.random() < float(self.config["crossover_rate"]):
-                offspring_a, offspring_b = parent_a.crossover(parent_b)
+                offspring_a, offspring_b = self.crossover(parent_a, parent_b)
             else:
                 offspring_a, offspring_b = parent_a, parent_b
 
@@ -197,6 +199,12 @@ class BaseEvolver(AbstractEvolver):
                 pop_save_path += "/"
             destination = pop_save_path + "model_" + str(index) + ".sgp"
             self.pickle_object(individual, destination)
+
+    def crossover(self, a, b):
+        # ToDo:: Variety in crossover
+        c, d = circle_crossover(a, b, self.config)
+        return c, d
+
 
 
 

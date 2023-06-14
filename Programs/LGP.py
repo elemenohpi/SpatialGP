@@ -164,7 +164,7 @@ class LGP(AbstractPrograms):
         self.statements[random_index].operands[random_operand_index] = operand
 
     def change_output_mutation(self, random_index):
-        output_selection_pool = copy.deepcopy(self.terminal_set)
+        output_selection_pool = copy.deepcopy(self.statement_output_pool)
         if self.statements[random_index].products()[0] == "command" or self.statements[random_index].products()[0] == \
                 "structural" or self.statements[random_index].products()[0] is None:
             return

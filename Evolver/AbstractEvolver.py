@@ -8,3 +8,7 @@ class AbstractEvolver(ABC):
     @abstractmethod
     def run(self):
         pass
+
+    @abstractmethod
+    def crossover(self, a, b):
+        pass

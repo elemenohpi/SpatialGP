@@ -130,7 +130,8 @@ def compare_experiments(path, n=100, key=None):
 
     # Plotting the line plot
     fig, ax = plt.subplots()
-    colors = ["blue", "red", "green", "brown", "purple", "yellow", "cyan"]
+    colors = ["blue", "red", "green", "brown", "purple", "yellow", "cyan", "orange", "pink", "Black", "lime", "Gray",
+              "crimson", "lavender", "indigo", "teal", "maroon", "fuchsia"]
     for index, directory_data in enumerate(plot_data):
         gen_data = directory_data[1]["gen"]
         median_best = np.array(directory_data[1]["best"])
@@ -171,7 +172,7 @@ def list_directories(path, key):
 
 
 if __name__ == "__main__":
-    equation = "E9"
+    # equation = "E9"
     # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation")
     # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_mutation")
     # compare_experiments(f"../HPCC Experiments/{equation}", f"{equation}Ablation_{equation}_nonspatial_mutation")
@@ -179,5 +180,5 @@ if __name__ == "__main__":
     # compare_experiments(f"../HPCC Experiments/{equation}", "nocrossover")
     # compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
     # compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
-    compare_experiments(f"../../HPCC_Experiments/", 100, "circle_mutation")
+    compare_experiments(f"../../HPCC_Experiments/", 100, "")
     pass
