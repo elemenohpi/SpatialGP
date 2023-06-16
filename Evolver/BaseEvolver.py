@@ -1,12 +1,9 @@
-import copy
 import pickle
-import random
-
 import eletility
 
 from Evolver.AbstractEvolver import AbstractEvolver
 from Evolver.Crossover import *
-
+from Evolver.Mutation import *
 
 class BaseEvolver(AbstractEvolver):
     def __init__(self, config, pop_obj, fitness_obj, interpreter_obj) -> None:
@@ -162,25 +159,7 @@ class BaseEvolver(AbstractEvolver):
         self.pop = copy.deepcopy(new_pop)
 
     def mutate_individual(self, individual):
-        rand = random.random()
-        if rand < float(self.config["structural_mutation_rate"]):
-            # Structural mutation
-            rand = random.random()
-            if rand < 0.5:
-                if len(individual.programs) <= int(self.config["lgp_size_max"]):
-                    individual.add_program()
-            else:
-                if len(individual.programs) > 1:
-                    random_index = random.randint(0, len(individual.programs) - 1)
-                    if individual.programs[random_index].program_type != "O":
-                        del individual.programs[random_index]
-        for program in individual.programs:
-            rand = random.random()
-            if rand < float(self.config["lgp_mutation_rate"]):
-                program.lgp_mutation()
-            if rand < float(self.config["structural_mutation_rate"]):
-                program.spatial_mutation()
-        pass
+        mutate(self.config, individual)
 
     def pickle_best(self, obj):
         destination = self.config["best_object"]

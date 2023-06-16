@@ -103,29 +103,60 @@ class LGP(AbstractPrograms):
         return indented_program_txt
 
     def lgp_mutation(self):
-        # add statement, remove statement, modify statement each have 33% chance
         rand = random.random()
-        if rand <= 0.33:
+        if rand <= float(self.config["lgp_mutation_rate"]):
             self.add_lgp_statement_mutation()
-        elif rand <= 0.66:
+
+        rand = random.random()
+        if rand <= float(self.config["lgp_mutation_rate"]):
             self.remove_lgp_statement_mutation()
-        else:
-            random_index = random.randint(0, len(self.statements) - 1)
-            if random_index == len(self.statements) - 1:
-                self.mutate_return_value()
-            else:
-                if random.random() < 0.5:
-                    # change operand
-                    if len(self.statements[random_index].demands()) > 0:
-                        self.change_operand_mutation(random_index)
-                else:
-                    # change output
-                    if len(self.statements[random_index].products()) > 0:
-                        self.change_output_mutation(random_index)
+
+        for statement in self.statements:
+            if statement == self.statements[-1]:
+                rand = random.random()
+                if rand <= float(self.config["lgp_mutation_rate"]):
+                    self.mutate_return_value()
+                continue
+
+            rand = random.random()
+            if rand <= float(self.config["lgp_mutation_rate"]):
+                if len(statement.demands()) > 0:
+                    self.change_operand_mutation(statement)
+
+            rand = random.random()
+            if rand <= float(self.config["lgp_mutation_rate"]):
+                if len(statement.products()) > 0:
+                    self.change_output_mutation(statement)
+
         rand = random.random()
         ret_mut_chance = float(self.config["return_mutation_rate_increase_handle"])
         if rand < ret_mut_chance:
             self.mutate_return_value()
+
+
+        # # add statement, remove statement, modify statement each have 33% chance
+        # rand = random.random()
+        # if rand <= 0.33:
+        #     self.add_lgp_statement_mutation()
+        # elif rand <= 0.66:
+        #     self.remove_lgp_statement_mutation()
+        # else:
+        #     random_index = random.randint(0, len(self.statements) - 1)
+        #     if random_index == len(self.statements) - 1:
+        #         self.mutate_return_value()
+        #     else:
+        #         if random.random() < 0.5:
+        #             # change operand
+        #             if len(self.statements[random_index].demands()) > 0:
+        #                 self.change_operand_mutation(random_index)
+        #         else:
+        #             # change output
+        #             if len(self.statements[random_index].products()) > 0:
+        #                 self.change_output_mutation(random_index)
+        # rand = random.random()
+        # ret_mut_chance = float(self.config["return_mutation_rate_increase_handle"])
+        # if rand < ret_mut_chance:
+        #     self.mutate_return_value()
 
     def add_lgp_statement_mutation(self):
         if len(self.statements) < int(self.config["lgp_size_max"]):
@@ -156,22 +187,22 @@ class LGP(AbstractPrograms):
 
             self.statements[-1] = return_var
 
-    def change_operand_mutation(self, random_index):
+    def change_operand_mutation(self, statement):
         selection_pool = copy.deepcopy(self.terminal_set)
-        random_operand_index = random.randint(0, len(self.statements[random_index].demands()) - 1)
+        random_operand_index = random.randint(0, len(statement.demands()) - 1)
         operand = random.choice(
-            selection_pool[self.statements[random_index].demands()[random_operand_index]])
-        self.statements[random_index].operands[random_operand_index] = operand
+            selection_pool[statement.demands()[random_operand_index]])
+        statement.operands[random_operand_index] = operand
 
-    def change_output_mutation(self, random_index):
+    def change_output_mutation(self, statement):
         output_selection_pool = copy.deepcopy(self.statement_output_pool)
-        if self.statements[random_index].products()[0] == "command" or self.statements[random_index].products()[0] == \
-                "structural" or self.statements[random_index].products()[0] is None:
+        if statement.products()[0] == "command" or statement.products()[0] == \
+                "structural" or statement.products()[0] is None:
             return
-        random_operand_index = random.randint(0, len(self.statements[random_index].products()) - 1)
+        random_operand_index = random.randint(0, len(statement.products()) - 1)
         output = random.choice(
-            output_selection_pool[self.statements[random_index].products()[random_operand_index]])
-        self.statements[random_index].outputs[random_operand_index] = output
+            output_selection_pool[statement.products()[random_operand_index]])
+        statement.outputs[random_operand_index] = output
 
     def distance_to_pos(self, source_pos, pos):
         return math.sqrt((pos[0] - source_pos[0]) ** 2 + (pos[1] - source_pos[1]) ** 2)
@@ -208,9 +239,10 @@ class LGP(AbstractPrograms):
         return x, y
 
     def spatial_mutation(self):
+        # ToDo:: random walk?
         # The commented code is for the random walk approach. Possibly this should be removed
         # random_step_size = int(self.config["random_walk_step_size"])
-        radius = float(self.config["init_radius"])
+        # radius = float(self.config["init_radius"])
         rand = random.random()
         if rand < 0.5 or self.has_discrete_output:
             # change pos
