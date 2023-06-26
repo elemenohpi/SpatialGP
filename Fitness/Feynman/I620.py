@@ -16,7 +16,7 @@ class I620A(AbstractFitness):
     def __init__(self) -> None:
         super().__init__()
         self.evaluation_method = "correlation"  # or rmse
-        self.evaluation_count = 10
+        self.evaluation_count = 30
         self.data_handler = DataHandler("Fitness/Feynman/example_data.txt", self)
 
     def settings(self):
@@ -27,7 +27,8 @@ class I620A(AbstractFitness):
     def inputs(self):
         return {
             "theta": "float",
-            "pi": "float"
+            "pi": "float",
+            "sigma": "float"
         }
 
     def outputs(self):
