@@ -483,3 +483,43 @@ def op_sqrt(a):
 
     def annotation(self):
         return "{} = math.sqrt({})"
+
+
+class OP_ARCSIN(AbstractOperator):
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def eval(self, a):
+        if a[0] == float("inf"):
+            a[0] = sys.float_info.max
+        elif a[0] == float("-inf"):
+            a[0] = -1 * sys.float_info.max
+
+        ans = math.asin(a[0])
+        if ans == float("inf") or ans == float("-inf"):
+            ans = sys.float_info.max
+        return ans
+
+    def demands(self):
+        return [
+            "float",
+        ]
+
+    @staticmethod
+    def op_code():
+        code = """
+# returns sin of the given number
+def op_arcsin(a):
+\treturn math.asin(a)
+"""
+        return code
+
+    def products(self):
+        return ["float"]
+
+    def name(self):
+        return "OP_ARCSIN"
+
+    def annotation(self):
+        return "{} = math.asin({})"
