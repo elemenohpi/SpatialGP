@@ -16,7 +16,7 @@ class I122(AbstractFitness):
     def __init__(self) -> None:
         super().__init__()
         self.evaluation_method = "correlation"  # or rmse
-        self.evaluation_count = 30
+        self.evaluation_count = 10
         self.data_handler = DataHandler("Fitness/Feynman/example_data.txt", self)
 
     def settings(self):

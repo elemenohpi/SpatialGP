@@ -11,12 +11,12 @@ from Handlers.DataHandler import DataHandler
 warnings.filterwarnings("ignore")
 
 
-class I620A(AbstractFitness):
+class I620(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()
         self.evaluation_method = "correlation"  # or rmse
-        self.evaluation_count = 30
+        self.evaluation_count = 10
         self.data_handler = DataHandler("Fitness/Feynman/example_data.txt", self)
 
     def settings(self):
@@ -45,9 +45,10 @@ class I620A(AbstractFitness):
             # ======================================STARTPROBLEM===============================================
             theta = self.data_handler.get_data(1)
             pi = math.pi
-            inputs = [theta, pi]
+            sigma = self.data_handler.get_data(1)
+            inputs = [theta, pi, sigma]
 
-            measured = math.exp(-1 * theta * theta / 2) / math.sqrt(2 * pi)
+            measured = math.exp(-1 * (theta ** 2)/(2 * sigma ** 2)) / math.sqrt(2 * pi * sigma ** 2)
 
             # ======================================ENDPROBLEM===============================================
             measured_results.append(measured)

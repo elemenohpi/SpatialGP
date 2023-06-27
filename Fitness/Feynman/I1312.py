@@ -11,7 +11,7 @@ from Handlers.DataHandler import DataHandler
 warnings.filterwarnings("ignore")
 
 
-class I1119(AbstractFitness):
+class I1312(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()
@@ -26,13 +26,14 @@ class I1119(AbstractFitness):
 
     def inputs(self):
         return {
-            "x[3]": "float",
-            "y[3]": "float"
+            "G": "float",
+            "m[2]": "float",
+            "r[2]": "float"
         }
 
     def outputs(self):
         return {
-            "A": "float"
+            "U": "float"
         }
 
     def evaluate(self, individual):
@@ -41,12 +42,11 @@ class I1119(AbstractFitness):
         predicted_results = []
         measured_results = []
         for i in range(self.evaluation_count):
-            # ======================================STARTPROBLEM===============================================
-            x = self.data_handler.get_data(3)
-            y = self.data_handler.get_data(3)
-            measured = x[0] * y[0] + x[1] * y[1] + x[2] * y[2]
-            inputs = [x, y]
-            # ======================================ENDPROBLEM===============================================
+            G = self.data_handler.get_data(1)
+            m = self.data_handler.get_data(2)
+            r = self.data_handler.get_data(2)
+            measured = G * m[0] * m[1] * (1/r[1] - 1/r[0])
+            inputs = [G, m, r]
             measured_results.append(measured)
             try:
                 output = individual.evaluate(inputs)
