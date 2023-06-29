@@ -7,7 +7,7 @@ from scipy import stats
 
 from Handlers.DataHandler import DataHandler
 
-path = "../Output/Population/model_0.sgp"
+path = "../../HPCC_Experiments/Tuning2\Tuning2_p300_t10_sm30_lm30_c100_e5_circle_single\Population\P18\model_0.sgp"
 evaluation_count = 50
 
 evaluation_method = "correlation"
