@@ -1,4 +1,5 @@
-OPERATORS = ["*", "/", "-", "+", "(", ")", "cos", "sin", "**", "math.sqrt"]
+OPERATORS = ["*", "/", "-", "+", "(", ")", "math.cos", "math.sin", "math.tan", "**", "math.sqrt", "math.exp",
+             "math.log"]
 
 
 def better_is_numeric(str):
@@ -39,6 +40,8 @@ def create_file(equation_name, equation, output_name, final_list):
             data_text += "            "
         if is_array(var):
             data_text += f'{get_array_name(var)} = self.data_handler.get_data({get_array_size(var)})\n'
+        elif var == "pi":
+            data_text += f'{var} = math.pi\n'
         else:
             data_text += f'{var} = self.data_handler.get_data(1)\n'
 
@@ -135,7 +138,7 @@ class {equation_name}(AbstractFitness):
 
     """
 
-    with open(f"generated_equations/{file_name}.py", "w") as file:
+    with open(f"../Fitness/Feynman/{file_name}.py", "w") as file:
         file.write(file_text)
 
 

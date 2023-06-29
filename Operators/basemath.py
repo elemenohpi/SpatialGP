@@ -523,3 +523,46 @@ def op_arcsin(a):
 
     def annotation(self):
         return "{} = math.asin({})"
+
+
+class OP_LOG(AbstractOperator):
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def eval(self, a):
+        if a[0] == float("inf"):
+            a[0] = sys.float_info.max
+        elif a[0] == float("-inf"):
+            a[0] = -1 * sys.float_info.max
+
+        if a[0] <= 0:
+            return 0
+
+        ans = math.log(a[0])
+        if ans == float("inf") or ans == float("-inf"):
+            ans = sys.float_info.max
+        return ans
+
+    def demands(self):
+        return [
+            "float",
+        ]
+
+    @staticmethod
+    def op_code():
+        code = """
+# returns sin of the given number
+def op_log(a):
+\treturn math.log(a)
+"""
+        return code
+
+    def products(self):
+        return ["float"]
+
+    def name(self):
+        return "OP_LOG"
+
+    def annotation(self):
+        return "{} = math.log({})"
