@@ -1,8 +1,8 @@
 import random
 
 from eletility import Files
-from eletility import Log
 from eletility import Times
+from Handlers.DataHandler import DataHandler
 
 
 class SpatialGP:
@@ -89,6 +89,10 @@ class SpatialGP:
 
         pop_obj = self.population_class(self.config, self.individual_class, self.programs_class)
         fitness_obj = self.fitness_class()
+        # ToDo:: This is a quick fix
+        fitness_obj.evaluation_count = int(self.config["evaluation_count"])
+        fitness_obj.data_handler = DataHandler("Fitness/Feynman/example_data.txt", fitness_obj)
+
         interpreter_obj = self.interpreter_class(self.config)
 
         pop_obj.generate_population()

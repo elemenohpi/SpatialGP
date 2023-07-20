@@ -43,7 +43,7 @@ class I294(AbstractFitness):
         for i in range(self.evaluation_count):
             w = self.data_handler.get_data(1)
             c = self.data_handler.get_data(1)
-            measured = w/c
+            measured = w / c
             inputs = [w, c]
             measured_results.append(measured)
             try:

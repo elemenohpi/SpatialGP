@@ -48,7 +48,7 @@ class I620b(AbstractFitness):
             sigma = self.data_handler.get_data(1)
             inputs = [theta, pi, sigma]
 
-            measured = math.exp(-1 * ((theta[0] - theta[1]) ** 2)/(2 * sigma ** 2)) / math.sqrt(2 * pi * sigma ** 2)
+            measured = math.exp(-1 * ((theta[0] - theta[1]) ** 2) / (2 * sigma ** 2)) / math.sqrt(2 * pi * sigma ** 2)
 
             # ======================================ENDPROBLEM===============================================
             measured_results.append(measured)

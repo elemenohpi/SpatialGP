@@ -1,4 +1,3 @@
-
 import math
 import sys
 import numpy as np
@@ -12,13 +11,13 @@ from Handlers.DataHandler import DataHandler
 warnings.filterwarnings("ignore")
 
 
-class I3427(AbstractFitness):
+class I124(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()
         self.evaluation_method = "correlation"  # or rmse
-        self.evaluation_count = None
-        self.data_handler = None
+        self.evaluation_count = 30
+        self.data_handler = DataHandler("Fitness/Feynman/example_data.txt", self)
 
     def settings(self):
         return {
@@ -27,14 +26,15 @@ class I3427(AbstractFitness):
 
     def inputs(self):
         return {
-            "h": "float",
-            "w": "float",
-
+            "q1": "float",
+            "e": "float",
+            "r": "float",
+            "pi": "float"
         }
 
     def outputs(self):
         return {
-            "E": "float"
+            "Ef": "float"
         }
 
     def evaluate(self, individual):
@@ -43,13 +43,12 @@ class I3427(AbstractFitness):
         predicted_results = []
         measured_results = []
         for i in range(self.evaluation_count):
-            # ======================================STARTPROBLEM===============================================
-            h = self.data_handler.get_data(1)
-            w = self.data_handler.get_data(1)
-
-            inputs = [h, w]
-            measured = h * w
-            # ======================================ENDPROBLEM===============================================
+            q1 = self.data_handler.get_data(1)
+            e = self.data_handler.get_data(1)
+            r = self.data_handler.get_data(1)
+            pi = math.pi
+            measured = q1 / (4 * pi * e * r * r)
+            inputs = [q1, e, r, pi]
             measured_results.append(measured)
             try:
                 output = individual.evaluate(inputs)
@@ -82,5 +81,3 @@ class I3427(AbstractFitness):
                 sum_error_squared += error_squared
             individual.rmse = math.sqrt(sum_error_squared / self.evaluation_count)
             return 1 - r ** 2
-
-    

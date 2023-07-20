@@ -55,7 +55,7 @@ class II611(AbstractFitness):
 
             inputs = [e, pd, r, theta, pi]
 
-            measured = (1 / (4 * pi * e)) * (pd * math.cos(theta) / (r ** 2)
+            measured = (1 / (4 * pi * e)) * (pd * math.cos(theta)) / (r ** 2)
             # ======================================ENDPROBLEM===============================================
             measured_results.append(measured)
             try:

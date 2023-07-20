@@ -478,6 +478,13 @@ class ConfigParser:
 
         return config
 
+    def write(self, config, path):
+        with open(path, "w+") as file:
+            file.truncate()
+            for key in config:
+                file.write(f"{key} = {config[key]}\n")
+
+
 
 ########################## Colors ##########################
 

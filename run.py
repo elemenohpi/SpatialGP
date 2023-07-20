@@ -169,7 +169,7 @@ It handles all of the command line arguments and calls other functions as needed
         hpcc_experiment()
     # Validate config
     elif args.validateConfig:
-        validate_configs(args.test)
+        validate_configs(args.validateConfig)
     # Compare Evo output files
     elif args.compare:
         compare_evo(args.compare, config)
