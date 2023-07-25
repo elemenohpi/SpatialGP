@@ -37,6 +37,6 @@ def compare_experiments(path, goal):
 
 
 if __name__ == "__main__":
-    compare_experiments("../../HPCC_Experiments/Tuning2", "min")
+    compare_experiments("../Results/", "min")
 
 

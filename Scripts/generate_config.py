@@ -109,8 +109,12 @@ def create_config(files, base, output):
     # all_operators = get_all_operators(files)
     base_config = get_base_config(base)
     for file in files:
-        file_name = file.split("\\")[1]
-        directory = file.split("\\")[0]
+
+        # file_name = file.split("\\")[1]
+        # directory = file.split("\\")[0]
+        file_name = file.split("/")[3]
+        directory = os.path.join(file.split("/")[0], file.split("/")[1], file.split("/")[2])
+
         subdir = ""
         try:
             subdir = directory.split("/")[2]
@@ -128,10 +132,10 @@ def create_config(files, base, output):
 
 
 if __name__ == "__main__":
-    path = "../Fitness/Feynman1"
+    path = "../Fitness/Feynman2"
     key = ""
     base = "../config.ini"
-    output = "../Configs/Feynman1"
+    output = "../Configs/Feynman2"
     files = find_files(path, key)
     create_config(files, base, output)
     # inputs, equations = parse_class_file("../Fitness/Feynman/I107.py")
