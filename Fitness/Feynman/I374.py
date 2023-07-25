@@ -27,7 +27,6 @@ class I374(AbstractFitness):
 
     def inputs(self):
         return {
-            "math.cos": "float",
             "gamma": "float",
             "I[2]": "float",
 
@@ -45,11 +44,10 @@ class I374(AbstractFitness):
         measured_results = []
         for i in range(self.evaluation_count):
             # ======================================STARTPROBLEM===============================================
-            math.cos = self.data_handler.get_data(1)
             gamma = self.data_handler.get_data(1)
             I = self.data_handler.get_data(2)
 
-            inputs = [math.cos, gamma, I]
+            inputs = [gamma, I]
 
             measured = I[0] + I[1] + 2 * math.sqrt(I[0] * I[1]) * math.cos(gamma)
             # ======================================ENDPROBLEM===============================================
