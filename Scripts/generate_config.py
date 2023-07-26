@@ -1,51 +1,5 @@
-<<<<<<< Updated upstream
-import os
 import eletility
-=======
-import osFeynman1_I153x/Slurm/Feynman1_I153x_45.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_46.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_47.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_48.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_49.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_5.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_6.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_7.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_8.txt
-Feynman1_I153x/Slurm/Feynman1_I153x_9.txt
-Feynman1_I153x/Subs/
-Feynman1_I153x/Subs/0.sb
-Feynman1_I153x/Subs/1.sb
-Feynman1_I153x/Subs/10.sb
-Feynman1_I153x/Subs/11.sb
-Feynman1_I153x/Subs/12.sb
-Feynman1_I153x/Subs/13.sb
-Feynman1_I153x/Subs/14.sb
-Feynman1_I153x/Subs/15.sb
-Feynman1_I153x/Subs/16.sb
-Feynman1_I153x/Subs/17.sb
-Feynman1_I153x/Subs/18.sb
-Feynman1_I153x/Subs/19.sb
-Feynman1_I153x/Subs/2.sb
-Feynman1_I153x/Subs/20.sb
-Feynman1_I153x/Subs/21.sb
-Feynman1_I153x/Subs/22.sb
-Feynman1_I153x/Subs/23.sb
-Feynman1_I153x/Subs/24.sb
-Feynman1_I153x/Subs/25.sb
-Feynman1_I153x/Subs/26.sb
-Feynman1_I153x/Subs/27.sb
-Feynman1_I153x/Subs/28.sb
-Feynman1_I153x/Subs/29.sb
-Feynman1_I153x/Subs/3.sb
-Feynman1_I153x/Subs/30.sb
-Feynman1_I153x/Subs/31.sb
-Feynman1_I153x/Subs/32.sb
-Feynman1_I153x/Subs/33.sb
-Feynman1_I153x/Subs/34.sb
-Feynman1_I153x/Subs/35.sb
-Feynman1_I153x/Subs/36.sb
-
->>>>>>> Stashed changes
+import os
 
 
 def parse_class_file(file_path):
