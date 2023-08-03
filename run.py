@@ -419,8 +419,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
             cp = ""
         file.write(
             "srun -n 1 python run.py -generations {} -output {} -pickle {} -evo {} -seed {} -pop_save_path {} -config "
-            "{}"
-            "{}\n".format(
+            "{} {}\n".format(
                 generations, output, pickleo, evo, seed + i, pop_save_path, config, cp))
         file.write(
             "scontrol show job Output/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
