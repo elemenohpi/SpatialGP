@@ -1,3 +1,6 @@
+import os
+import pickle
+
 from Population.AbstractPopulation import AbstractPopulation
 
 
@@ -17,3 +20,24 @@ class BasePopulation(AbstractPopulation):
             individual.init_random()
             individual.individual_index = i
             self.pop.append(individual)
+
+    def load_population(self):
+        print("Checkpointing is ON. Attempting to load an existing population.")
+        pop_size = int(self.config["population_size"])
+        pop_save_path = self.config["pop_save_path"]
+        self.pop = []
+        for i in range(pop_size):
+            potential_file_path = os.path.join(pop_save_path, f"model_{i}.sgp")
+            if os.path.exists(potential_file_path):
+                with open(potential_file_path, "rb") as pickled_file:
+                    loaded_individual = pickle.load(pickled_file)
+                print(f"Individual {potential_file_path} was successfully loaded.")
+                self.pop.append(loaded_individual)
+                pass
+            else:
+                print(f"WARNING: {potential_file_path} does not exist and therefore is randomly initialized.")
+                individual = self.individual_class(self.config, self.programs_class)
+                individual.init_random()
+                individual.individual_index = i
+                self.pop.append(individual)
+

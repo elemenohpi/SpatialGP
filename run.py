@@ -55,6 +55,8 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-pop_save_path", help="Path to where the population pickle files are saved")
     parser.add_argument("-formulize", help="Simplifies and formulizes a given pickled SGP model into mathematical "
                                            "equations (if applicable)")
+    parser.add_argument("-cp", help="Forces the system to use the checkpointing mechanism which loads a population"
+                                    "if existing to continue evolution.", action='store_true')
     args = parser.parse_args()
     return args
 
@@ -184,7 +186,10 @@ It handles all of the command line arguments and calls other functions as needed
     # Run SpatialGP
     else:
         sgp = SpatialGP(config)
-        best_fitness = sgp.run()
+        if not args.cp:
+            best_fitness = sgp.run()
+        else:
+            best_fitness = sgp.run(checkpointing=True)
 
 
 def compare_evo(path, config):
@@ -270,8 +275,14 @@ manually change any parameters.
     generations = int(input("Number of generations: "))
     seed = int(input("Starting seed: "))
     config = input("Config directory: ")
-    print("Title: {}, Reps: {}, Hours: {}, Gens: {}, Starting Seed: {}, Config: {}".format(title, reps, hours,
-                                                                                           generations, seed, config))
+    cp = input("Checkpointing (y/n): ")
+    if cp == "y" or cp == "Y" or cp.lower() == "yes":
+        cp = True
+    else:
+        cp = False
+    print("Title: {}, Reps: {}, Hours: {}, Gens: {}, Starting Seed: {}, Config: {}, Checkpointing: {}".format(
+        title, reps, hours, generations, seed, config, cp))
+
     confirm = input("Do you confirm these settings? YES to continue ")
     if confirm != "YES":
         print("Exiting...")
@@ -282,7 +293,7 @@ manually change any parameters.
             continue
         new_title = title + "_" + config_file.split(".")[0]
         config_path = join(config, config_file)
-        hpcc(reps, hours, generations, seed, new_title, config_path)
+        hpcc(reps, hours, generations, seed, new_title, config_path, cp)
 
 
 def hpcc_single():
@@ -299,18 +310,22 @@ def hpcc_single():
     generations = int(input("Number of generations: "))
     seed = int(input("Starting seed: "))
     config = input("Config file: ")
-
+    cp = input("Checkpointing (y/n): ")
+    if cp == "y" or cp == "Y" or cp.lower() == "yes":
+        cp = True
+    else:
+        cp = False
     print(
-        "Title: {}, Reps: {}, Hours: {}, Gens: {}, Starting Seed: {}, Config: {}".format(title, reps, hours,
-                                                                                         generations, seed, config))
+        "Title: {}, Reps: {}, Hours: {}, Gens: {}, Starting Seed: {}, Config: {}, Checkpointing: {}".format(
+            title, reps, hours, generations, seed, config, cp))
     confirm = input("Do you confirm these settings? YES to continue ")
     if confirm != "YES":
         print("Exiting...")
         exit()
-    hpcc(reps, hours, generations, seed, title, config)
+    hpcc(reps, hours, generations, seed, title, config, cp)
 
 
-def hpcc(reps, hours, generations, seed, title, config):
+def hpcc(reps, hours, generations, seed, title, config, cp):
     """
         The hpcc function is used to create a series of slurm files that can be submitted to the hpcc. The function takes
         in the following arguments: reps - The number of repetitions for each experiment.  This will result in 'reps'
@@ -324,6 +339,7 @@ def hpcc(reps, hours, generations, seed, title, config):
     :param seed: Set the seed for the random number generator
     :param title: Create a folder with the same name
     :param config: Specify the config file that you want to use
+    :param cp: Specify whether you want to use the checkpointing mechanism or not
     :return: A list of the slurm files that were submitted
     :doc-author: Trelent
     """
@@ -355,6 +371,10 @@ def hpcc(reps, hours, generations, seed, title, config):
         file = open(filename, "w")
         file.write("#!/bin/bash --login\n")
         file.write("\n########## SBATCH Lines for Resource Request ##########\n\n")
+        if cp:
+            file.write(
+                "#SBATCH --qos=scavenger         # enables the Scavenger queue\n"
+            )
         file.write(
             "#SBATCH --time={}:02:00             # limit of wall clock time - how long the job will run (same as -t)\n"
             .format(hours))
@@ -393,10 +413,15 @@ def hpcc(reps, hours, generations, seed, title, config):
         pickleo = "Output/{}/Object/pickled_{}.sgp".format(title, i)
         evo = "Output/{}/Evo/evo_{}.csv".format(title, i)
         pop_save_path = f"Output/{title}/Population/P{i}/"
+        if cp:
+            cp = "-cp"
+        else:
+            cp = ""
         file.write(
             "srun -n 1 python run.py -generations {} -output {} -pickle {} -evo {} -seed {} -pop_save_path {} -config "
+            "{}"
             "{}\n".format(
-                generations, output, pickleo, evo, seed + i, pop_save_path, config))
+                generations, output, pickleo, evo, seed + i, pop_save_path, config, cp))
         file.write(
             "scontrol show job Output/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
                 title))

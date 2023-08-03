@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 class AbstractIndividual(ABC):
     def __init__(self, config, programs_class) -> None:
         self.fitness = 0
+        self.generation = 0
         pass
 
     @abstractmethod

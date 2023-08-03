@@ -84,7 +84,7 @@ class SpatialGP:
         module = __import__("Evolver." + evolver)
         self.evolver_class = getattr(getattr(module, evolver), evolver)
 
-    def run(self):
+    def run(self, checkpointing=False):
         start_time = self.Times.now()
 
         pop_obj = self.population_class(self.config, self.individual_class, self.programs_class)
@@ -97,13 +97,14 @@ class SpatialGP:
 
         # If this is a HPCC experiment and data already exists, load population instead of generating it
         # (Scavenger queue)
-        # ToDo::
-        # raise NotImplemented("Gotta implement")
-
-        pop_obj.generate_population()
+        if checkpointing:
+            pop_obj.load_population()
+        else:
+            # normal run with no checkpointing
+            pop_obj.generate_population()
         evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj, interpreter_obj)
 
-        best_fitness = evolver_obj.run()
+        best_fitness = evolver_obj.run(checkpointing)
 
         end_time = self.Times.now()
 

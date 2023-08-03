@@ -19,13 +19,19 @@ class BaseEvolver(AbstractEvolver):
         self.Files = eletility.Files()
         self.Log = eletility.Log()
 
-    def run(self):
+    def run(self, checkpointing=False):
+        start_gen = 0
+        if checkpointing:
+            # ToDo:: Code relies on the first individual to always have the highest fitness since it's supposedly the
+            # best individual of a loaded population. This could raise problems in case the user is not aware of this
+            # design decision.
+            start_gen = self.pop[0].generation
 
-        for generation in range(self.generations):
+        for generation in range(start_gen, self.generations):
             log_msg = "\t{}: ".format(generation)
             average_fitness = self.update_population_fitness()
             self.sort_population()
-            self.save_pop()
+            self.save_pop(generation)
             average_length = 0
             for individual in self.pop:
                 average_length += len(individual.programs)
@@ -171,12 +177,13 @@ class BaseEvolver(AbstractEvolver):
         with open(destination, 'wb') as object_file:
             pickle.dump(obj, object_file)
 
-    def save_pop(self):
+    def save_pop(self, gen):
         for index, individual in enumerate(self.pop):
             pop_save_path = self.config["pop_save_path"]
             if pop_save_path[-1] != "/":
                 pop_save_path += "/"
             destination = pop_save_path + "model_" + str(index) + ".sgp"
+            individual.generation = gen
             self.pickle_object(individual, destination)
 
     def crossover(self, a, b):
