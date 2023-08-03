@@ -95,6 +95,11 @@ class SpatialGP:
 
         interpreter_obj = self.interpreter_class(self.config)
 
+        # If this is a HPCC experiment and data already exists, load population instead of generating it
+        # (Scavenger queue)
+        # ToDo::
+        # raise NotImplemented("Gotta implement")
+
         pop_obj.generate_population()
         evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj, interpreter_obj)
 
