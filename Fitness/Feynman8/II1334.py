@@ -12,7 +12,7 @@ from Handlers.DataHandler import DataHandler
 warnings.filterwarnings("ignore")
 
 
-class II1323(AbstractFitness):
+class II1334(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()
