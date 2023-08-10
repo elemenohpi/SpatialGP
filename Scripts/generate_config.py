@@ -133,12 +133,13 @@ def create_config(files, base, output):
 
 
 if __name__ == "__main__":
-    path = "../Fitness/Feynman8"
+    path = "../Fitness/Feynman9"
     key = ""
     base = "../config.ini"
-    output = "../Configs/Feynman8"
+    output = "../Configs/Feynman9"
     files = find_files(path, key)
     create_config(files, base, output)
+    print(f"Configs successfully generated in {path}")
     # inputs, equations = parse_class_file("../Fitness/Feynman/I107.py")
     # print(inputs)
     # print(equations)
