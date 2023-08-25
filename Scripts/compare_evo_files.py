@@ -30,13 +30,24 @@ def compare_experiments(path, goal):
                 lines = evo.readlines()
                 last_line = lines[-1]
                 tokens = last_line.replace(" ", "").split(",")
-                fitness_list.append([file_path, float(tokens[1])])
+                try:
+                    fitness_list.append([file_path, float(tokens[1])])
+                except:
+                    last_line = lines[-2]
+                    tokens = last_line.replace(" ", "").split(",")
+                    fitness_list.append([file_path, float(tokens[1])])
     sorted_list = sorted(fitness_list, key=lambda x: x[1])
+    total_solved = 0
+    avg_fitness = 0
     for element in sorted_list:
         print(f"{element[1]} for {element[0]}")
+        if float(element[1]) == 0:
+            total_solved += 1
+        avg_fitness += float(element[1])
 
+    print(f"Total solved: {total_solved}, avg_fitness: {avg_fitness/len(element)}")
 
 if __name__ == "__main__":
-    compare_experiments("../Results/", "min")
+    compare_experiments("../Output/F2LGP", "min")
 
 
