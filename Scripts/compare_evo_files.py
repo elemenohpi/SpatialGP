@@ -45,9 +45,9 @@ def compare_experiments(path, goal):
             total_solved += 1
         avg_fitness += float(element[1])
 
-    print(f"Total solved: {total_solved}, avg_fitness: {avg_fitness/len(element)}")
+    print(f"Total solved: {total_solved}, avg_fitness: {avg_fitness/len(sorted_list)}")
 
 if __name__ == "__main__":
-    compare_experiments("../Output/F2LGP", "min")
+    compare_experiments("../Results/F1", "min")
 
 
