@@ -11,6 +11,7 @@ class BasePopulation(AbstractPopulation):
         self.individual_class = individual_class
         self.config = config
         self.programs_class = programs_class
+        self.generation = -1
 
     def generate_population(self):
         pop_size = int(self.config["population_size"])

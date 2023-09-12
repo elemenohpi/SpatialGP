@@ -344,21 +344,22 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
     :doc-author: Trelent
     """
     file_handler = Files()
-    # create a folder
+    hpcc_user = "/mnt/scratch/miralavy"
+    # create the folders
     try:
-        os.mkdir("Output/{}".format(title))
-        os.mkdir("Output/{}/Error".format(title))
-        os.mkdir("Output/{}/Slurm".format(title))
-        os.mkdir("Output/{}/Evo".format(title))
-        os.mkdir("Output/{}/Population".format(title))
+        os.mkdir("{}/{}".format(hpcc_user, title))
+        # os.mkdir("{}/{}/Error".format(hpcc_user, title))
+        os.mkdir("{}/{}/Slurm".format(hpcc_user, title))
+        os.mkdir("{}/{}/Evo".format(hpcc_user, title))
+        os.mkdir("{}/{}/Population".format(hpcc_user, title))
         for rep in range(reps):
-            os.mkdir("Output/{}/Population/P{}".format(title, rep))
-        os.mkdir("Output/{}/Object".format(title))
-        os.mkdir("Output/{}/Executable".format(title))
-        os.mkdir("Output/{}/Subs".format(title))
+            os.mkdir("{}/{}/Population/P{}".format(hpcc_user, title, rep))
+        # os.mkdir("{}/{}/Object".format(hpcc_user, title))
+        # os.mkdir("{}/{}/Executable".format(hpcc_user, title))
+        os.mkdir("{}/{}/Subs".format(hpcc_user, title))
     except FileExistsError:
         pass
-    destination = "Output/{}/{}.ini".format(title, title)
+    destination = "{}/{}/{}.ini".format(hpcc_user, title, title)
     content = "#Overridden Settings:\n#reps = {}\n#hours = {}\n#generations = {}\n#seed = {}\n\n".format(reps, hours,
                                                                                                          generations,
                                                                                                          seed)
@@ -367,7 +368,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
     file_handler.writeTruncate(destination, content)
 
     for i in range(reps):
-        filename = "Output/{}/Subs/{}.sb".format(title, i)
+        filename = "{}/{}/Subs/{}.sb".format(hpcc_user, title, i)
         file = open(filename, "w")
         file.write("#!/bin/bash --login\n")
         file.write("\n########## SBATCH Lines for Resource Request ##########\n\n")
@@ -390,15 +391,15 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
             "bytes)\n")
         file.write(
             "#SBATCH --job-name {}_{}      # you can give your job a name for easier identification (same as -J)\n"
-            "".format(title, i))
+            "".format(i, title))
+        # file.write(
+        #     "#SBATCH --error=/mnt/scratch/{}/{}/Error/{}_{}.err      # you can give your job a name for easier identification "
+        #     "(same as -J)\n".format(
+        #         hpcc_user, title, title, i))
         file.write(
-            "#SBATCH --error=Output/{}/Error/{}_{}.err      # you can give your job a name for easier identification "
+            "#SBATCH --output={}/{}/Slurm/{}_{}.txt      # you can give your job a name for easier identification "
             "(same as -J)\n".format(
-                title, title, i))
-        file.write(
-            "#SBATCH --output=Output/{}/Slurm/{}_{}.txt      # you can give your job a name for easier identification "
-            "(same as -J)\n".format(
-                title, title, i))
+                hpcc_user, title, title, i))
 
         # SBATCH --error=%j.err
         file.write("\n########## Command Lines to Run ##########\n\n")
@@ -409,23 +410,23 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         directory_name = os.path.dirname(current_file_path)
         file.write("cd ~/{}\n".format(directory_name))
         # file.write("module load GCC/6.4.0-2.28 OpenMPI  ### load necessary modules, e.g\n")
-        output = "Output/{}/Executable/exec_{}.py".format(title, i)
-        pickleo = "Output/{}/Object/pickled_{}.sgp".format(title, i)
-        evo = "Output/{}/Evo/evo_{}.csv".format(title, i)
-        pop_save_path = f"Output/{title}/Population/P{i}/"
+        # output = "{}/{}/Executable/exec_{}.py".format(hpcc_user, title, i)
+        # pickleo = "{}/{}/Object/pickled_{}.sgp".format(hpcc_user, title, i)
+        evo = "{}/{}/Evo/evo_{}.csv".format(hpcc_user, title, i)
+        pop_save_path = f"{hpcc_user}/{title}/Population/P{i}/"
         if cp:
             cp = "-cp"
         else:
             cp = ""
         file.write(
-            "srun -n 1 python run.py -generations {} -output {} -pickle {} -evo {} -seed {} -pop_save_path {} -config "
+            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -config "
             "{} {}\n".format(
-                generations, output, pickleo, evo, seed + i, pop_save_path, config, cp))
+                generations, evo, seed + i, pop_save_path, config, cp))
         file.write(
-            "scontrol show job Output/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
-                title))
+            "scontrol show job {}/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
+                hpcc_user, title))
         file.close()
-        call(["sbatch", "Output/{}/Subs/{}.sb".format(title, i)])
+        call(["sbatch", "{}/{}/Subs/{}.sb".format(hpcc_user, title, i)])
 
 
 if __name__ == "__main__":

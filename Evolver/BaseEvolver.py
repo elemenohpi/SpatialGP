@@ -5,10 +5,11 @@ from Evolver.AbstractEvolver import AbstractEvolver
 from Evolver.Crossover import *
 from Evolver.Mutation import *
 
+
 class BaseEvolver(AbstractEvolver):
     def __init__(self, config, pop_obj, fitness_obj, interpreter_obj) -> None:
         super().__init__(config, pop_obj, fitness_obj, interpreter_obj)
-        self.pop = pop_obj.pop
+        self.pop = pop_obj
         self.config = config
         self.generations = int(self.config["generations"])
         self.fitness_obj = fitness_obj
@@ -25,7 +26,7 @@ class BaseEvolver(AbstractEvolver):
             # ToDo:: Code relies on the first individual to always have the highest fitness since it's supposedly the
             # best individual of a loaded population. This could raise problems in case the user is not aware of this
             # design decision.
-            start_gen = self.pop[0].generation
+            start_gen = self.pop.pop[0].generation
 
         for generation in range(start_gen, self.generations):
             log_msg = "\t{}: ".format(generation)
@@ -33,19 +34,19 @@ class BaseEvolver(AbstractEvolver):
             self.sort_population()
             self.save_pop(generation)
             average_length = 0
-            for individual in self.pop:
+            for individual in self.pop.pop:
                 average_length += len(individual.programs)
-            average_length /= len(self.pop)
+            average_length /= len(self.pop.pop)
 
             log_msg += "Best Fitness: {}, Average Fitness: {}, Best Individual Size: {}, Average Model Size: {}".\
-                format(self.pop[0].fitness, average_fitness, len(self.pop[0].programs), average_length)
+                format(self.pop.pop[0].fitness, average_fitness, len(self.pop.pop[0].programs), average_length)
 
-            save_log_msg = "{}, {}, {}, {}".format(self.pop[0].fitness, average_fitness, len(self.pop[0].programs),
+            save_log_msg = "{}, {}, {}, {}".format(self.pop.pop[0].fitness, average_fitness, len(self.pop.pop[0].programs),
                                                    average_length)
 
             if self.save_annotation == "True":
-                best_individual_annotation = self.pop[0].get_annotation()
-                self.save_best(best_individual_annotation)
+                best_individual_annotation = self.pop.pop[0].get_annotation()
+                # self.save_best(best_individual_annotation)
 
             self.save_log(generation, save_log_msg)
             self.Log.I(log_msg)
@@ -53,16 +54,16 @@ class BaseEvolver(AbstractEvolver):
                 break
             self.tournament()
 
-        try:
-            self.pickle_best(self.pop[0])
-        except TypeError:
-            pass
+        # try:
+        #     self.pickle_best(self.pop.pop[0])
+        # except TypeError:
+        #     pass
 
         top_right = 0
         bottom_right = 0
         bottom_left = 0
         top_left = 0
-        for model in self.pop:
+        for model in self.pop.pop:
             for program in model.programs:
                 if program.pos[0] >= 0 and program.pos[1] >= 0:
                     top_right += 1
@@ -74,11 +75,11 @@ class BaseEvolver(AbstractEvolver):
                     top_left += 1
         print("Final Positional Counts -> top_right:", top_right, "bot_right:", bottom_right, "bot_left:", bottom_left,
               "top_left:", top_left)
-        return self.pop[0].fitness
+        return self.pop.pop[0].fitness
 
     def update_population_fitness(self):
         sum_fitness = 0
-        for index, individual in enumerate(self.pop):
+        for index, individual in enumerate(self.pop.pop):
             # The following lines are meant to be used to speed up the evaluation process slightly with the cost of
             # sacrificing modularity to a small degree
             if not individual.has_discrete_output:
@@ -91,9 +92,9 @@ class BaseEvolver(AbstractEvolver):
             fitness = self.fitness_obj.evaluate(individual)
             fitness = round(fitness, 10)
 
-            self.pop[index].fitness = fitness
+            self.pop.pop[index].fitness = fitness
             sum_fitness += fitness
-        return sum_fitness/len(self.pop)
+        return sum_fitness/len(self.pop.pop)
 
     def sort_population(self):
         settings = self.fitness_obj.settings()
@@ -104,7 +105,7 @@ class BaseEvolver(AbstractEvolver):
             order = True
         else:
             raise "Unknown optimization goal"
-        self.pop.sort(key=lambda x: x.fitness, reverse=order)
+        self.pop.pop.sort(key=lambda x: x.fitness, reverse=order)
 
     def update_elite_list(self, elites, new_elite):
         return elites
@@ -138,15 +139,15 @@ class BaseEvolver(AbstractEvolver):
     def tournament(self):
         new_pop = []
         if self.elitism >= 1:
-            new_pop = copy.deepcopy(self.pop[:self.elitism])
+            new_pop = copy.deepcopy(self.pop.pop[:self.elitism])
 
         for i, indv in enumerate(new_pop):
             indv.individual_index = i
 
-        while len(new_pop) < len(self.pop):
+        while len(new_pop) < len(self.pop.pop):
             tournament_list = []
             for i in range(self.tournament_size):
-                tournament_list.append(random.choice(self.pop))
+                tournament_list.append(random.choice(self.pop.pop))
             sorted_tournament = self.sort_tournament(tournament_list)
             parent_a, parent_b = copy.deepcopy(sorted_tournament[0]), copy.deepcopy(sorted_tournament[1])
 
@@ -162,7 +163,7 @@ class BaseEvolver(AbstractEvolver):
             new_pop.append(offspring_a)
             offspring_b.individual_index = len(new_pop)
             new_pop.append(offspring_b)
-        self.pop = copy.deepcopy(new_pop)
+        self.pop.pop = copy.deepcopy(new_pop)
 
     def mutate_individual(self, individual):
         mutate(self.config, individual)
@@ -178,13 +179,12 @@ class BaseEvolver(AbstractEvolver):
             pickle.dump(obj, object_file)
 
     def save_pop(self, gen):
-        for index, individual in enumerate(self.pop):
-            pop_save_path = self.config["pop_save_path"]
-            if pop_save_path[-1] != "/":
-                pop_save_path += "/"
-            destination = pop_save_path + "model_" + str(index) + ".sgp"
-            individual.generation = gen
-            self.pickle_object(individual, destination)
+        pop_save_path = self.config["pop_save_path"]
+        if pop_save_path[-1] != "/":
+            pop_save_path += "/"
+        destination = pop_save_path + "pop.sgp"
+        self.pop.generation = gen
+        self.pickle_object(self.pop, destination)
 
     def crossover(self, a, b):
         # ToDo:: Variety in crossover
