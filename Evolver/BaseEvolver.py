@@ -28,28 +28,40 @@ class BaseEvolver(AbstractEvolver):
             # design decision.
             start_gen = self.pop.pop[0].generation
 
+        log_interval = 10
+        log_counter = 0
+        log_stack = ""
         for generation in range(start_gen, self.generations):
+            log_counter += 1
             log_msg = "\t{}: ".format(generation)
             average_fitness = self.update_population_fitness()
             self.sort_population()
-            self.save_pop(generation)
+            if log_counter % log_interval == 0:
+                self.save_pop(generation)
             average_length = 0
             for individual in self.pop.pop:
                 average_length += len(individual.programs)
             average_length /= len(self.pop.pop)
 
-            log_msg += "Best Fitness: {}, Average Fitness: {}, Best Individual Size: {}, Average Model Size: {}".\
+            log_msg += "Best Fitness: {}, Average Fitness: {}, Best Individual Size: {}, Average Model Size: {}". \
                 format(self.pop.pop[0].fitness, average_fitness, len(self.pop.pop[0].programs), average_length)
 
-            save_log_msg = "{}, {}, {}, {}".format(self.pop.pop[0].fitness, average_fitness, len(self.pop.pop[0].programs),
+            save_log_msg = "{}, {}, {}, {}, {}".format(generation, self.pop.pop[0].fitness, average_fitness,
+                                                   len(self.pop.pop[0].programs),
                                                    average_length)
 
-            if self.save_annotation == "True":
-                best_individual_annotation = self.pop.pop[0].get_annotation()
-                # self.save_best(best_individual_annotation)
+            log_stack += save_log_msg + "\n"
 
-            self.save_log(generation, save_log_msg)
+            if log_counter % log_interval == 0:
+                self.save_log(log_stack.rstrip("\n"))
+                log_counter = 0
+                log_stack = ""
             self.Log.I(log_msg)
+
+            # if self.save_annotation == "True":
+            #     best_individual_annotation = self.pop.pop[0].get_annotation()
+            #     # self.save_best(best_individual_annotation)
+
             if generation == self.generations - 1:
                 break
             self.tournament()
@@ -94,7 +106,7 @@ class BaseEvolver(AbstractEvolver):
 
             self.pop.pop[index].fitness = fitness
             sum_fitness += fitness
-        return sum_fitness/len(self.pop.pop)
+        return sum_fitness / len(self.pop.pop)
 
     def sort_population(self):
         settings = self.fitness_obj.settings()
@@ -107,22 +119,19 @@ class BaseEvolver(AbstractEvolver):
             raise "Unknown optimization goal"
         self.pop.pop.sort(key=lambda x: x.fitness, reverse=order)
 
-    def update_elite_list(self, elites, new_elite):
-        return elites
-
     def save_best(self, annotation):
         destination = self.config["best_program"]
         disclaimer = "# This code is a generated/synthesized QGP model/program\n# =================================" \
                      "=========== \n\n"
         self.Files.writeTruncate(destination, disclaimer + annotation)
 
-    def save_log(self, gen, log):
+    def save_log(self, log):
         destination = self.config["evo_file"]
-        if gen == 0:
+        if log[0] == "0":
             title = "gen,best,avg,best_size,avg_size\n"
-            self.Files.writeTruncate(destination, title + repr(gen) + ", " + log + "\n")
+            self.Files.writeTruncate(destination, title + log + "\n")
         else:
-            self.Files.writeLine(destination, repr(gen) + ", " + log)
+            self.Files.writeLine(destination, log)
 
     def sort_tournament(self, tournament):
         settings = self.fitness_obj.settings()
@@ -190,7 +199,3 @@ class BaseEvolver(AbstractEvolver):
         # ToDo:: Variety in crossover
         c, d = circle_crossover(a, b, self.config)
         return c, d
-
-
-
-

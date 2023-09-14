@@ -194,7 +194,7 @@ It handles all of the command line arguments and calls other functions as needed
 
 def compare_evo(path, config):
     """
-The compare_evo function takes in a path to the directory containing all of the evolution files, and a config dictionary.
+The compare_evo function takes in a exp_path to the directory containing all of the evolution files, and a config dictionary.
 It then iterates through each file in that directory, and finds the best fitness value for each file. It then prints out
 the name of that file, along with its generation number, fitness value (best), rvalue (best), rmse (best) and average
 fitness values.

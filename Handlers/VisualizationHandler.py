@@ -272,7 +272,7 @@ class VisualizationHandler:
     def add_arrows_html(self, id1, id2, color):
         element_one = f'''document.getElementById('{id1}')'''
         element_two = f'''document.getElementById('{id2}')'''
-        arrow_format = "{color: '" + color + "', path: 'straight', size: 3, opacity: 0.5}"
+        arrow_format = "{color: '" + color + "', exp_path: 'straight', size: 3, opacity: 0.5}"
         arrow_html = f'''
             <script>
                 new LeaderLine({element_one},{element_two},{arrow_format} 

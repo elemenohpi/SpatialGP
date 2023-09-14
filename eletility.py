@@ -248,7 +248,7 @@ class PathHelper:
         pass
 
     def absPath(self, file):
-        """ returns the absolute path to a given relative path """
+        """ returns the absolute exp_path to a given relative exp_path """
         return os.path.abspath(file)
 
 
@@ -304,12 +304,12 @@ class StringProc:
     pass
 
 
-# def create_connection(path):
+# def create_connection(exp_path):
 
 
 #     connection = None
 #     try:
-#         connection = sqlite3.connect(path)
+#         connection = sqlite3.connect(exp_path)
 #         print("Successfully Connected")
 
 ########################## FILES ##########################

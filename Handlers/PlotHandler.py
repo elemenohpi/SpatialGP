@@ -180,5 +180,6 @@ if __name__ == "__main__":
     # compare_experiments(f"../HPCC Experiments/{equation}", "nocrossover")
     # compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
     # compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
-    compare_experiments(f"../Results/", 1000, "")
+    compare_experiments(f"../../Results/F1/", 1000, "I153x")
+    # compare_experiments(f"../../Results/F1-4/F1-4Res/", 100, "Feynman1")
     pass
