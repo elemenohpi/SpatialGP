@@ -4,7 +4,7 @@ import os
 
 import pandas as pd
 
-exp_path = "../../Results/F6"
+exp_path = "../../Results/Compressed/F4-5"
 key = ""
 
 exp_dirs = os.listdir(exp_path)
