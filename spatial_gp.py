@@ -92,6 +92,7 @@ class SpatialGP:
         # ToDo:: This is a quick fix
         fitness_obj.evaluation_count = int(self.config["evaluation_count"])
         fitness_obj.data_handler = DataHandler("Fitness/Feynman/example_data.txt", fitness_obj)
+        # ToDo:: revert
 
         interpreter_obj = self.interpreter_class(self.config)
 
