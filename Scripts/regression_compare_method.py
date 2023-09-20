@@ -22,13 +22,21 @@ def list_files(path):
 def compare_experiments(path, gen):
     fitness_list = []
     directories = list_directories(path, None)
+    problems = {}
     for directory in directories:
+        problem_name = directory.split("_")[-1]
+        if problem_name not in list(problems.keys()):
+            problems[problem_name] = [0, (0, 0), (0, 0), (0, 0)]  # total, (solved_sgp, failed_sgp) and so on
         files = list_files(os.path.join(path, directory, "Evo"))
         for file in files:
             file_path = os.path.join(path, directory, "Evo", file)
             with open(file_path, "r") as evo:
                 lines = evo.readlines()
-                last_line = lines[-1]
+                try:
+                    goal_line = lines[gen]
+                except IndexError:
+                    pass
+
                 tokens = last_line.replace(" ", "").split(",")
                 try:
                     fitness_list.append([file_path, float(tokens[1])])
@@ -49,6 +57,6 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    compare_experiments("../../Results/F1", "min")
+    compare_experiments("../../Results/F1", 500)
 
 
