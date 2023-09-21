@@ -95,6 +95,8 @@ def get_avg_dataframe(path_to_files, max_gen):
     for file in files:
         file_path = os.path.join(path_to_files, file)
         df = pd.read_csv(file_path)
+        df = df.apply(pd.to_numeric, errors='coerce')
+
         dfs.append(df)
 
     combined_df = pd.concat(dfs)
@@ -180,6 +182,9 @@ if __name__ == "__main__":
     # compare_experiments(f"../HPCC Experiments/{equation}", "nocrossover")
     # compare_experiments(f"../HPCC Experiments/{equation}", "high_LGP")
     # compare_experiments(f"../HPCC Experiments/{equation}", "retcon")
-    compare_experiments(f"../../Results/F1/", 1000, "I153x")
+    # compare_experiments(f"../../Results/F6/", 100, "TGP6_II242")
+    # compare_experiments(f"../../Results/F6/", 100, "Feynman6_II242")
+    # compare_experiments(f"../../Results/F6/", 100, "F6LGP_II242")
+    # compare_experiments(f"../../Results/F6/", 100, "F")
     # compare_experiments(f"../../Results/F1-4/F1-4Res/", 100, "Feynman1")
     pass

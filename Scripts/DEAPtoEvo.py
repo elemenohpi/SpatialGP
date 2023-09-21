@@ -75,13 +75,17 @@ class DEAPtoEvo:
 if __name__ == "__main__":
     # path = input("Enter directory: ")
     # key = input("Enter key: ")
-    my_path = "../../Results/"
+    my_path = "../../Results/Compressed/TGP_fix/"
+    # my_path = "../../Results/"
     my_key = "TGP"
 
-    all_folders = os.listdir(my_path)
-    for folder in all_folders:
-        if "F" in folder:
-            path_to_exp = os.path.join(my_path, folder)
-            deap_to_evo = DEAPtoEvo(path_to_exp, my_key)
-            deap_to_evo.convert()
-            print(path_to_exp, "done")
+    # all_folders = os.listdir(my_path)
+    # for folder in all_folders:
+    #     if "F" in folder:
+    #         path_to_exp = os.path.join(my_path, folder)
+    #         deap_to_evo = DEAPtoEvo(path_to_exp, my_key)
+    #         deap_to_evo.convert()
+    #         print(path_to_exp, "done")
+    deap_to_evo = DEAPtoEvo(my_path, my_key)
+    deap_to_evo.convert()
+
