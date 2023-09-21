@@ -26,7 +26,7 @@ def compare_experiments(path, gen):
     for directory in directories:
         problem_name = directory.split("_")[-1]
         if problem_name not in list(problems.keys()):
-            problems[problem_name] = [0, (0, 0), (0, 0), (0, 0)]  # total, (solved_sgp, failed_sgp) and so on
+            problems[problem_name] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]  # total, (total_sgp, failed_sgp, solved_sgp) and for LGP and TGP
         files = list_files(os.path.join(path, directory, "Evo"))
         for file in files:
             file_path = os.path.join(path, directory, "Evo", file)
@@ -35,15 +35,36 @@ def compare_experiments(path, gen):
                 try:
                     goal_line = lines[gen]
                 except IndexError:
-                    pass
+                    method = directory.split("_")[0]
+                    if "Feynman" in method:
+                        problems[problem_name][0][1] += 1
+                    elif "LGP" in method:
+                        problems[problem_name][1][1] += 1
+                    elif "TGP" in method:
+                        problems[problem_name][2][1] += 1
+                    continue
 
-                tokens = last_line.replace(" ", "").split(",")
+                tokens = goal_line.replace(" ", "").split(",")
                 try:
                     fitness_list.append([file_path, float(tokens[1])])
                 except:
                     last_line = lines[-2]
                     tokens = last_line.replace(" ", "").split(",")
                     fitness_list.append([file_path, float(tokens[1])])
+                method = directory.split("_")[0]
+                if float(tokens[1]) == 0:
+                    if "Feynman" in method:
+                        problems[problem_name][0][2] += 1
+                    elif "LGP" in method:
+                        problems[problem_name][1][2] += 1
+                    elif "TGP" in method:
+                        problems[problem_name][2][2] += 1
+                if "Feynman" in method:
+                    problems[problem_name][0][0] += 1
+                elif "LGP" in method:
+                    problems[problem_name][1][0] += 1
+                elif "TGP" in method:
+                    problems[problem_name][2][0] += 1
     sorted_list = sorted(fitness_list, key=lambda x: x[1])
     total_solved = 0
     avg_fitness = 0
@@ -54,6 +75,9 @@ def compare_experiments(path, gen):
         avg_fitness += float(element[1])
 
     print(f"Total solved: {total_solved}, avg_fitness: {avg_fitness/len(sorted_list)}")
+    print("==========================================================================")
+    for problem in problems:
+        print(problem)
 
 
 if __name__ == "__main__":
