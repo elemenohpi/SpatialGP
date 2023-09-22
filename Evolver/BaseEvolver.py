@@ -19,6 +19,7 @@ class BaseEvolver(AbstractEvolver):
         self.save_annotation = self.config["save_annotation"]
         self.Files = eletility.Files()
         self.Log = eletility.Log()
+        self.gen = 0
 
     def run(self, checkpointing=False):
         start_gen = 0
@@ -32,6 +33,7 @@ class BaseEvolver(AbstractEvolver):
         log_counter = 0
         log_stack = ""
         for generation in range(start_gen, self.generations):
+            self.gen = generation
             log_counter += 1
             log_msg = "\t{}: ".format(generation)
             average_fitness = self.update_population_fitness()
@@ -175,7 +177,7 @@ class BaseEvolver(AbstractEvolver):
         self.pop.pop = copy.deepcopy(new_pop)
 
     def mutate_individual(self, individual):
-        mutate(self.config, individual)
+        mutate(self.config, individual, self.gen)
 
     def pickle_best(self, obj):
         destination = self.config["best_object"]

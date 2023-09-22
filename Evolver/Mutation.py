@@ -2,7 +2,12 @@ import random
 from multiprocessing import Pool
 
 
-def mutate(config, model):
+def mutate(config, model, gen):
+    try:
+        if 0 < int(config["stop_spatial_mutation_at_gen"]) < gen:
+            config["structural_mutation_rate"] = 0
+    except:
+        pass
     rand = random.random()
     if rand < float(config["structural_mutation_rate"]):
         # Add program
@@ -18,7 +23,9 @@ def mutate(config, model):
 
     for program in model.programs:
         program.lgp_mutation()
-        program.spatial_mutation()
+        rand = random.random()
+        if rand < float(config["structural_mutation_rate"]):
+            program.spatial_mutation()
         # rand = random.random()
         # if rand < float(config["lgp_mutation_rate"]):
         #     program.lgp_mutation()
