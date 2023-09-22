@@ -241,18 +241,24 @@ class LGP(AbstractPrograms):
     def spatial_mutation(self):
         # ToDo:: random walk?
         # The commented code is for the random walk approach. Possibly this should be removed
-        # random_step_size = int(self.config["random_walk_step_size"])
-        # radius = float(self.config["init_radius"])
+        random_step_size = 0
+        try:
+            random_step_size = int(self.config["random_walk_step_size"])
+        except:
+            pass
+        radius = float(self.config["init_radius"])
         rand = random.random()
         if rand < 0.5 or self.has_discrete_output:
-            # change pos
-            # random_step_x = random.randint(-1 * random_step_size, random_step_size)
-            # random_step_y = random.randint(-1 * random_step_size, random_step_size)
-            # new_pos = (random_step_x + self.pos[0], self.pos[1] + random_step_y)
-            # if not self.distance_to_pos((0, 0), new_pos) > radius:
-            #     self.pos = (self.pos[0] + random_step_x, self.pos[1] + random_step_y)
-            new_pos = self.find_random_spatial_position()
-            self.pos = new_pos
+            if random_step_size > 0:
+                # change pos
+                random_step_x = random.randint(-1 * random_step_size, random_step_size)
+                random_step_y = random.randint(-1 * random_step_size, random_step_size)
+                new_pos = (random_step_x + self.pos[0], self.pos[1] + random_step_y)
+                if not self.distance_to_pos((0, 0), new_pos) > radius:
+                    self.pos = (self.pos[0] + random_step_x, self.pos[1] + random_step_y)
+            else:
+                new_pos = self.find_random_spatial_position()
+                self.pos = new_pos
         else:
             if not self.config["output_ratio"] == "single" and not self.config["output_ratio"] == "none":
                 # change i/o
