@@ -49,6 +49,6 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    compare_experiments("../../Results/F6", "min")
+    compare_experiments("../../Results/Compressed/all_conf", "min")
 
 

@@ -48,6 +48,8 @@ def compare_experiments(path, gen):
                         problems[problem_name][1][1] += 1
                     elif "TGP" in method:
                         problems[problem_name][2][1] += 1
+                    elif "paramconf" in method or "SGP" in method:
+                        problems[problem_name][0][1] += 1
                     continue
 
                 tokens = goal_line.replace(" ", "").split(",")
@@ -65,12 +67,16 @@ def compare_experiments(path, gen):
                         problems[problem_name][1][2] += 1
                     elif "TGP" in method:
                         problems[problem_name][2][2] += 1
+                    elif "paramconf" in method or "SGP" in method:
+                        problems[problem_name][0][2] += 1
                 if "Feynman" in method:
                     problems[problem_name][0][0] += 1
                 elif "LGP" in method:
                     problems[problem_name][1][0] += 1
                 elif "TGP" in method:
                     problems[problem_name][2][0] += 1
+                elif "paramconf" in method or "SGP" in method:
+                    problems[problem_name][0][0] += 1
     sorted_list = sorted(fitness_list, key=lambda x: x[1])
     total_solved = 0
     avg_fitness = 0
@@ -98,8 +104,9 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    for i in range(1, 10):
-        compare_experiments(f"../../Results/F{i}", 100)
+    # for i in range(1, 10):
+    #     compare_experiments(f"../../Results/F{i}", 100)
+    compare_experiments("../../Results/Compressed/SGP_paramconf2/", 99)
     print("Problems solved by SGP:")
     [print(x, end=" ") for x in SGP_solved]
     print()

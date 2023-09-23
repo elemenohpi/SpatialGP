@@ -133,7 +133,7 @@ def compare_experiments(path, n=100, key=None):
     # Plotting the line plot
     fig, ax = plt.subplots()
     colors = ["blue", "red", "green", "brown", "purple", "yellow", "cyan", "orange", "pink", "Black", "lime", "Gray",
-              "crimson", "lavender", "indigo", "teal", "maroon", "fuchsia"]
+              "crimson", "lavender", "indigo", "teal", "maroon", "fuchsia", "azure", "teal"]
     for index, directory_data in enumerate(plot_data):
         gen_data = directory_data[1]["gen"]
         median_best = np.array(directory_data[1]["best"])
@@ -186,5 +186,6 @@ if __name__ == "__main__":
     # compare_experiments(f"../../Results/F6/", 100, "Feynman6_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F6LGP_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F")
+    compare_experiments(f"../../Results/Compressed/pegah", 99, "")
     # compare_experiments(f"../../Results/F1-4/F1-4Res/", 100, "Feynman1")
     pass
