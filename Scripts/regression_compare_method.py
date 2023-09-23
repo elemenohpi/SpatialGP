@@ -106,7 +106,7 @@ def compare_experiments(path, gen):
 if __name__ == "__main__":
     # for i in range(1, 10):
     #     compare_experiments(f"../../Results/F{i}", 100)
-    compare_experiments("../../Results/Compressed/SGP1/", 99)
+    compare_experiments("../../Results/F1/", 99)
     print("Problems solved by SGP:")
     [print(x, end=" ") for x in SGP_solved]
     print()
