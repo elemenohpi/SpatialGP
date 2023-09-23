@@ -133,10 +133,10 @@ def create_config(files, base, output):
 
 
 if __name__ == "__main__":
-    path = "../Fitness/Feynman1"
+    path = "../Fitness/Feynman2"
     key = ""
     base = "../Configs/ParamConf2/II242-10.ini"
-    output = "../Configs/SGP1"
+    output = "../Configs/SGP2"
     files = find_files(path, key)
     create_config(files, base, output)
     print(f"Configs successfully generated in {output}")
