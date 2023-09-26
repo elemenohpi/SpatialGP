@@ -18,10 +18,13 @@ def list_directories(path, key):
 def list_files(path):
     return os.listdir(path)
 
+
 TGP_solved = []
 LGP_solved = []
+Old_SGP_solved = []
 SGP_solved = []
 total_problem_count = 0
+
 
 def compare_experiments(path, gen):
     global total_problem_count
@@ -31,7 +34,7 @@ def compare_experiments(path, gen):
     for directory in directories:
         problem_name = directory.split("_")[-1]
         if problem_name not in list(problems.keys()):
-            problems[problem_name] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]  # total, (total_sgp, failed_sgp, solved_sgp) and for LGP and TGP
+            problems[problem_name] = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]  # total, (total_sgp, failed_sgp, solved_sgp) and for LGP and TGP
             total_problem_count += 1
         files = list_files(os.path.join(path, directory, "Evo"))
         for file in files:
@@ -48,8 +51,8 @@ def compare_experiments(path, gen):
                         problems[problem_name][1][1] += 1
                     elif "TGP" in method:
                         problems[problem_name][2][1] += 1
-                    elif "paramconf" in method or "SGP" in method:
-                        problems[problem_name][0][1] += 1
+                    elif "SGP" in method:
+                        problems[problem_name][3][1] += 1
                     continue
 
                 tokens = goal_line.replace(" ", "").split(",")
@@ -67,16 +70,16 @@ def compare_experiments(path, gen):
                         problems[problem_name][1][2] += 1
                     elif "TGP" in method:
                         problems[problem_name][2][2] += 1
-                    elif "paramconf" in method or "SGP" in method:
-                        problems[problem_name][0][2] += 1
+                    elif "SGP" in method:
+                        problems[problem_name][3][2] += 1
                 if "Feynman" in method:
                     problems[problem_name][0][0] += 1
                 elif "LGP" in method:
                     problems[problem_name][1][0] += 1
                 elif "TGP" in method:
                     problems[problem_name][2][0] += 1
-                elif "paramconf" in method or "SGP" in method:
-                    problems[problem_name][0][0] += 1
+                elif "SGP" in method:
+                    problems[problem_name][3][0] += 1
     sorted_list = sorted(fitness_list, key=lambda x: x[1])
     total_solved = 0
     avg_fitness = 0
@@ -89,28 +92,36 @@ def compare_experiments(path, gen):
     # print(f"Total solved: {total_solved}, avg_fitness: {avg_fitness/len(sorted_list)}")
     print("==========================================================================")
     for problem in problems:
-        print(f"{problem} SGP=> total: {problems[problem][0][0]} failed: {problems[problem][0][1]} solved: {problems[problem][0][2]}")
+        print(f"{problem} SGP=> total: {problems[problem][3][0]} solved: {problems[problem][3][2]} failed: {problems[problem][3][1]} ")
         print(
-            f"{problem} LGP=> total: {problems[problem][1][0]} failed: {problems[problem][1][1]} solved: {problems[problem][1][2]}")
+            f"{problem} OLD_SGP=> total: {problems[problem][0][0]} solved: {problems[problem][0][2]} failed: {problems[problem][0][1]} ")
         print(
-            f"{problem} TGP=> total: {problems[problem][2][0]} failed: {problems[problem][2][1]} solved: {problems[problem][2][2]}")
+            f"{problem} LGP=> total: {problems[problem][1][0]} solved: {problems[problem][1][2]} failed: {problems[problem][1][1]} ")
+        print(
+            f"{problem} TGP=> total: {problems[problem][2][0]} solved: {problems[problem][2][2]} failed: {problems[problem][2][1]} ")
         print("==========================================================================")
         if problems[problem][0][2] > 0:
-            SGP_solved.append(problem)
+            Old_SGP_solved.append(problem)
         if problems[problem][1][2] > 0:
             LGP_solved.append(problem)
         if problems[problem][2][2] > 0:
             TGP_solved.append(problem)
+        if problems[problem][3][2] > 0:
+            SGP_solved.append(problem)
 
 
 if __name__ == "__main__":
-    # for i in range(1, 10):
-    #     compare_experiments(f"../../Results/F{i}", 100)
-    compare_experiments("../../Results/F1/", 99)
+    for i in range(1, 10):
+        compare_experiments(f"../../Results/F{i}", 100)
+    # compare_experiments("../../Results/F1/", 99)
     print("Problems solved by SGP:")
     [print(x, end=" ") for x in SGP_solved]
     print()
     print(f"Count: {len(SGP_solved)}")
+    print("Problems solved by the Old SGP:")
+    [print(x, end=" ") for x in Old_SGP_solved]
+    print()
+    print(f"Count: {len(Old_SGP_solved)}")
     print("Problems solved by LGP:")
     [print(x, end=" ") for x in LGP_solved]
     print()
