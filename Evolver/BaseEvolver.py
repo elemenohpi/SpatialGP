@@ -7,13 +7,13 @@ from Evolver.Mutation import *
 
 
 class BaseEvolver(AbstractEvolver):
-    def __init__(self, config, pop_obj, fitness_obj, interpreter_obj) -> None:
-        super().__init__(config, pop_obj, fitness_obj, interpreter_obj)
+    def __init__(self, config, pop_obj, fitness_obj) -> None:
+        super().__init__(config, pop_obj, fitness_obj)
         self.pop = pop_obj
         self.config = config
         self.generations = int(self.config["generations"])
         self.fitness_obj = fitness_obj
-        self.interpreter_obj = interpreter_obj
+        # self.interpreter_obj = interpreter_obj
         self.tournament_size = int(self.config["tournament_size"])
         self.elitism = int(self.config["elitism"])
         self.save_annotation = self.config["save_annotation"]

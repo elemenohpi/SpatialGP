@@ -67,9 +67,9 @@ class SpatialGP:
         # Programs
         module = __import__("Programs." + programs)
         self.programs_class = getattr(getattr(module, programs), programs)
-        # Interpreter
-        module = __import__("Interpreter." + interpreter)
-        self.interpreter_class = getattr(getattr(module, interpreter), interpreter)
+        # # Interpreter
+        # module = __import__("Interpreter." + interpreter)
+        # self.interpreter_class = getattr(getattr(module, interpreter), interpreter)
         # Fitness
         module = __import__("Fitness." + fitness)
         tokens = fitness.split(".")
@@ -94,7 +94,7 @@ class SpatialGP:
         fitness_obj.data_handler = DataHandler("Fitness/Feynman/example_data.txt", fitness_obj)
         # ToDo:: revert
 
-        interpreter_obj = self.interpreter_class(self.config)
+        # interpreter_obj = self.interpreter_class(self.config)
 
         # If this is a HPCC experiment and data already exists, load population instead of generating it
         # (Scavenger queue)
@@ -103,7 +103,7 @@ class SpatialGP:
         else:
             # normal run with no checkpointing
             pop_obj.generate_population()
-        evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj, interpreter_obj)
+        evolver_obj = self.evolver_class(self.config, pop_obj, fitness_obj)
 
         best_fitness = evolver_obj.run(checkpointing)
 
