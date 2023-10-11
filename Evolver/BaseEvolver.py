@@ -45,7 +45,7 @@ class BaseEvolver(AbstractEvolver):
                 average_length += len(individual.programs)
             average_length /= len(self.pop.pop)
 
-            log_msg += "Best Fitness: {}, Average Fitness: {}, Best Individual Size: {}, Average Model Size: {}". \
+            log_msg += "Best: {}, Avg: {}, Best Size: {}, Avg Size: {}". \
                 format(self.pop.pop[0].fitness, average_fitness, len(self.pop.pop[0].programs), average_length)
 
             save_log_msg = "{}, {}, {}, {}, {}".format(generation, self.pop.pop[0].fitness, average_fitness,

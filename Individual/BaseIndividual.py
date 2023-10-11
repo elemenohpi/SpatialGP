@@ -21,6 +21,7 @@ class BaseIndividual(AbstractIndividual):
         self.analysis_executed_statements_count = 0
         self.has_output = False
         self.config = config
+        self.execution_order = []
         self.programs_class = programs_class
         self.init_size_min = int(self.config["init_size_min"])
         self.init_size_max = int(self.config["init_size_max"])

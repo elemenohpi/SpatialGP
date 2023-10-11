@@ -1,6 +1,8 @@
 import json
 import os
 import pickle
+import subprocess
+import sys
 import webbrowser
 
 from Handlers.PlotHandler import *
@@ -21,7 +23,7 @@ class VisualizationHandler:
         return file_list
 
     def analyze_model(self, path_to_experiment):
-        path_to_models = path_to_experiment + "Population/"
+        path_to_pop = path_to_experiment + "Population/pop.sgp"
         evo_file = path_to_experiment + "evo.csv"
         output_path = path_to_experiment + "Analysis/"
         try:
@@ -29,7 +31,6 @@ class VisualizationHandler:
         except FileNotFoundError:
             evo_file = path_to_experiment + "Evo/evo_0.csv"
             create_evo_plots(evo_file, output_path)
-        files = self.get_files_in_path(path_to_models)
         # ToDo::Make dynamic
         path_to_html = "Output/Analysis/analysis.html"
         canvases = []
@@ -40,19 +41,22 @@ class VisualizationHandler:
         all_individuals = []
         all_exe_p_count = []
         all_exe_s_count = []
-        for file_id, path_to_model in enumerate(files):
-            pickled_object = open(path_to_model, "rb")
-            model_object = pickle.load(pickled_object)
+        print(path_to_pop)
+        pickled_object = open(path_to_pop, "rb")
+        pop_object = pickle.load(pickled_object)
+
+        for index, individual in enumerate(pop_object.pop):
             # get_execution_info should run first in case you want to tag programs with an id before proceeding. Perhaps
             # this could be moved elsewhere?
-            fitness, execution_info, additional_info = model_object.get_execution_info()
+            fitness, execution_info, additional_info = individual.get_execution_info()
             fitness = round(fitness, 10)
-            program_info = model_object.get_programs_info()
 
-            radius = float(model_object.config["init_radius"])
+            program_info = individual.get_programs_info()
+
+            radius = float(individual.config["init_radius"])
             self.radius = radius
 
-            canvas = {'id': f'canvas{file_id}', 'radius': radius}
+            canvas = {'id': f'canvas{index}', 'radius': radius}
 
             coordinates = []
             annotations = []
@@ -65,7 +69,7 @@ class VisualizationHandler:
             all_execution_info.append(execution_info)
             all_annotations.append(annotations)
             all_fitness.append(fitness)
-            all_individuals.append(model_object)
+            all_individuals.append(individual)
             all_exe_p_count.append(additional_info["exe_p_count"])
             all_exe_s_count.append(additional_info["exe_s_count"])
 
@@ -76,7 +80,11 @@ class VisualizationHandler:
         self.generate_html_file(path_to_html, canvases, all_coordinates, all_annotations, all_execution_info,
                                 all_fitness, all_exe_p_count, all_exe_s_count)
         full_path = os.path.abspath(path_to_html)
-        os.startfile(full_path)
+        try:
+            os.startfile(full_path)
+        except AttributeError:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, full_path])
 
     def generate_html_headers(self):
         return '''
@@ -146,6 +154,7 @@ class VisualizationHandler:
     def generate_coordinate_system(self, canvas_id, radius, circle_coordinates, index, execution_info, fitness, all_p,
                                    all_s):
         execution_info_set = set(tuple(sublist) for sublist in execution_info[index])
+        loop_text = self.extract_loop_info(execution_info[index])
         number_of_programs = len(circle_coordinates)
         number_of_executions = len(execution_info[index])
         unique_execution_flows = len(execution_info_set)
@@ -171,7 +180,12 @@ class VisualizationHandler:
                 <br>
                 Number of Executed Programs: {all_p[index]}
                 <br>
+                <br>
+                Number of Executed Programs on Average: {all_p[index]/len(execution_info[index])}
+                <br>
                 Number of Executed Statements: {all_s[index]}
+                <br>
+                {loop_text}
             </p>
             
             {self.generate_evo_plot_html(index)}
@@ -313,4 +327,59 @@ class VisualizationHandler:
                 coordinates.append(program.pos)
 
         create_heatmap(coordinates, output_path, radius)
+
+    def extract_loop_info(self, execution_info):
+        looped_evaluation_count = 0
+        frequency = {}
+        average_frequency = {}
+        notable_looped_programs = []
+        for order in execution_info:
+            if len(set(order)) != len(order):
+                looped_evaluation_count += 1
+            for element in set(order):
+                count = order.count(element)
+                if element not in frequency.keys():
+                    frequency[element] = 0
+                frequency[element] += count
+
+        for key, value in frequency.items():
+            average_frequency[key] = value / len(execution_info)
+
+        values = sorted(average_frequency.values(), reverse=True)
+        loop_count = [count for count in values if count > 1]
+        loop_count = sum(loop_count)
+
+        sorted_average_frequencies = sorted(average_frequency.items(), key=lambda x: x[1], reverse=True)
+        if looped_evaluation_count > 0:
+            if len(sorted_average_frequencies) > 3:
+                notable_looped_programs = sorted_average_frequencies[0:3]
+            else:
+                notable_looped_programs = sorted_average_frequencies
+
+        length = len(notable_looped_programs)
+        index = 0
+        while index < length:
+            if notable_looped_programs[index][1] == 1:
+                del(notable_looped_programs[index])
+                length -= 1
+            index += 1
+
+        notable_text = ""
+        for program, count in notable_looped_programs:
+            notable_text += f"P{program}: {count}, "
+        notable_text = notable_text[:-2]
+
+        loop_text = ""
+        if looped_evaluation_count == 0:
+            loop_text += "Loop: None <br>"
+        elif looped_evaluation_count == len(execution_info):
+            loop_text += f"Loop: Always<br>" \
+                         f"Average Looped Evaluations: {looped_evaluation_count / len(execution_info)}<br>" \
+                         f"Average Loop Count: {loop_count}<br>" \
+                         f"Notable Looped Programs: {notable_text}<br>"
+        else:
+            loop_text += f"Loop: Sometimes <br>Average Looped Evaluations" \
+                         f": {looped_evaluation_count / len(execution_info)}<br>Notable Looped "\
+                         f"Programs: {notable_text}<br>"
+        return loop_text
 

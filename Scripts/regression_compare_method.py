@@ -20,7 +20,9 @@ def list_files(path):
 
 
 TGP_solved = []
+Old_TGP_solved = []
 LGP_solved = []
+Old_LGP_solved = []
 Old_SGP_solved = []
 SGP_solved = []
 total_problem_count = 0
@@ -34,7 +36,7 @@ def compare_experiments(path, gen):
     for directory in directories:
         problem_name = directory.split("_")[-1]
         if problem_name not in list(problems.keys()):
-            problems[problem_name] = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]  # total, (total_sgp, failed_sgp, solved_sgp) and for LGP and TGP
+            problems[problem_name] = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]  # total, (total_sgp, failed_sgp, solved_sgp) and for LGP and TGP
             total_problem_count += 1
         files = list_files(os.path.join(path, directory, "Evo"))
         for file in files:
@@ -46,13 +48,23 @@ def compare_experiments(path, gen):
                 except IndexError:
                     method = directory.split("_")[0]
                     if "Feynman" in method:
+                        # Old SGP
                         problems[problem_name][0][1] += 1
-                    elif "LGP" in method:
+                    elif "LGP" in method and method[0] == "F":
+                        # Old LGP
                         problems[problem_name][1][1] += 1
                     elif "TGP" in method:
+                        # Old TGP
                         problems[problem_name][2][1] += 1
                     elif "SGP" in method:
+                        # SGP
                         problems[problem_name][3][1] += 1
+                    elif "LGP" in method and method[0] == "L":
+                        # LGP
+                        problems[problem_name][4][1] += 1
+                    elif "T" in method and "TGP" not in method[0]:
+                        # TGP
+                        problems[problem_name][5][1] += 1
                     continue
 
                 tokens = goal_line.replace(" ", "").split(",")
@@ -66,20 +78,32 @@ def compare_experiments(path, gen):
                 if float(tokens[1]) == 0:
                     if "Feynman" in method:
                         problems[problem_name][0][2] += 1
-                    elif "LGP" in method:
+                    elif "LGP" in method and method[0] == "F":
                         problems[problem_name][1][2] += 1
                     elif "TGP" in method:
                         problems[problem_name][2][2] += 1
                     elif "SGP" in method:
                         problems[problem_name][3][2] += 1
+                    elif "LGP" in method and method[0] == "L":
+                        # LGP
+                        problems[problem_name][4][2] += 1
+                    elif "T" in method and "TGP" not in method[0]:
+                        # TGP
+                        problems[problem_name][5][2] += 1
                 if "Feynman" in method:
                     problems[problem_name][0][0] += 1
-                elif "LGP" in method:
+                elif "LGP" in method and method[0] == "F":
                     problems[problem_name][1][0] += 1
                 elif "TGP" in method:
                     problems[problem_name][2][0] += 1
                 elif "SGP" in method:
                     problems[problem_name][3][0] += 1
+                elif "LGP" in method and method[0] == "L":
+                    # LGP
+                    problems[problem_name][4][0] += 1
+                elif "T" in method and "TGP" not in method[0]:
+                    # TGP
+                    problems[problem_name][5][0] += 1
     sorted_list = sorted(fitness_list, key=lambda x: x[1])
     total_solved = 0
     avg_fitness = 0
@@ -96,18 +120,26 @@ def compare_experiments(path, gen):
         print(
             f"{problem} OLD_SGP=> total: {problems[problem][0][0]} solved: {problems[problem][0][2]} failed: {problems[problem][0][1]} ")
         print(
-            f"{problem} LGP=> total: {problems[problem][1][0]} solved: {problems[problem][1][2]} failed: {problems[problem][1][1]} ")
+            f"{problem} LGP=> total: {problems[problem][4][0]} solved: {problems[problem][4][2]} failed: {problems[problem][4][1]} ")
         print(
-            f"{problem} TGP=> total: {problems[problem][2][0]} solved: {problems[problem][2][2]} failed: {problems[problem][2][1]} ")
+            f"{problem} OLD_LGP=> total: {problems[problem][1][0]} solved: {problems[problem][1][2]} failed: {problems[problem][1][1]} ")
+        print(
+            f"{problem} TGP=> total: {problems[problem][5][0]} solved: {problems[problem][5][2]} failed: {problems[problem][5][1]} ")
+        print(
+            f"{problem} OLD_TGP=> total: {problems[problem][2][0]} solved: {problems[problem][2][2]} failed: {problems[problem][2][1]} ")
         print("==========================================================================")
         if problems[problem][0][2] > 0:
             Old_SGP_solved.append(problem)
         if problems[problem][1][2] > 0:
-            LGP_solved.append(problem)
+            Old_LGP_solved.append(problem)
         if problems[problem][2][2] > 0:
-            TGP_solved.append(problem)
+            Old_TGP_solved.append(problem)
         if problems[problem][3][2] > 0:
             SGP_solved.append(problem)
+        if problems[problem][4][2] > 0:
+            LGP_solved.append(problem)
+        if problems[problem][5][2] > 0:
+            TGP_solved.append(problem)
 
 
 if __name__ == "__main__":
@@ -116,20 +148,34 @@ if __name__ == "__main__":
     # compare_experiments("../../Results/F1/", 99)
     print("Problems solved by SGP:")
     [print(x, end=" ") for x in SGP_solved]
-    print()
+    print("")
     print(f"Count: {len(SGP_solved)}")
-    print("Problems solved by the Old SGP:")
-    [print(x, end=" ") for x in Old_SGP_solved]
-    print()
-    print(f"Count: {len(Old_SGP_solved)}")
+    print("\n")
+    # print("Problems solved by the Old SGP:")
+    # [print(x, end=" ") for x in Old_SGP_solved]
+    # print()
+    # print(f"Count: {len(Old_SGP_solved)}")
+    # print("\n")
     print("Problems solved by LGP:")
     [print(x, end=" ") for x in LGP_solved]
     print()
     print(f"Count: {len(LGP_solved)}")
+    print("\n")
+    # print("Problems solved by Old LGP:")
+    # [print(x, end=" ") for x in Old_LGP_solved]
+    # print()
+    # print(f"Count: {len(Old_LGP_solved)}")
+    print("\n")
     print("Problems solved by TGP:")
     [print(x, end=" ") for x in TGP_solved]
     print()
     print(f"Count: {len(TGP_solved)}")
+    print("\n")
+    # print("Problems solved by Old TGP:")
+    # [print(x, end=" ") for x in Old_TGP_solved]
+    # print()
+    # print(f"Count: {len(Old_TGP_solved)}")
+    print("\n==================")
     print("Total problem count: ", total_problem_count)
 
 # II242. Solved three times by LGP

@@ -75,9 +75,9 @@ class DEAPtoEvo:
 if __name__ == "__main__":
     # path = input("Enter directory: ")
     # key = input("Enter key: ")
-    my_path = "../../Results/Compressed/TGP_fix/"
+    my_path = "../../Results/Compressed/TreeGPAll/"
     # my_path = "../../Results/"
-    my_key = "TGP"
+    my_key = ""
 
     # all_folders = os.listdir(my_path)
     # for folder in all_folders:

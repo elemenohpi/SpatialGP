@@ -1,22 +1,4 @@
-import math
-
-import numpy as np
-
-import warnings
-
-# Suppress all warnings
-warnings.filterwarnings("ignore")
-
-# Example data
-measurements = [1, 2, 3, 4, 5]
-predictions = [0, 0, 0, 0, 0]
-
-# Calculate the correlation coefficient
-
-correlation_coefficient = np.corrcoef(measurements, predictions)[0, 1]
-
-if str(correlation_coefficient) == "nan":
-    correlation_coefficient = 10
-
-# Print the correlation coefficient
-print("Correlation coefficient:", correlation_coefficient)
+footballers_goals = {'Eusebio': 120, 'Cruyff': 104, 'Pele': 150, 'Ronaldo': 132, 'Messi': 125}
+print(footballers_goals.items())
+sorted_footballers_by_goals = sorted(footballers_goals.items(), key=lambda x: x[1], reverse=True)
+print(sorted_footballers_by_goals)
