@@ -44,6 +44,7 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-seed", help="The random seed")
     parser.add_argument("-config", help="Config file to operate with")
     parser.add_argument("-output", help="Path to the output file")
+    parser.add_argument("-diversity", help="Path to the diversity file")
     parser.add_argument("-pickle", help="Path to the pickled object")
     parser.add_argument("-evo", help="Path to the evolutionary output")
     parser.add_argument("-generations", help="Number of generations")
@@ -151,6 +152,9 @@ It handles all of the command line arguments and calls other functions as needed
     # best program output file
     if args.output:
         config["best_program"] = args.output
+
+    if args.diversity:
+        config["diversity_file"] = args.diversity
 
     # pickle output file
     if args.pickle:
@@ -351,6 +355,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         # os.mkdir("{}/{}/Error".format(hpcc_user, title))
         os.mkdir("{}/{}/Slurm".format(hpcc_user, title))
         os.mkdir("{}/{}/Evo".format(hpcc_user, title))
+        os.mkdir("{}/{}/Div".format(hpcc_user, title))
         os.mkdir("{}/{}/Population".format(hpcc_user, title))
         for rep in range(reps):
             os.mkdir("{}/{}/Population/P{}".format(hpcc_user, title, rep))
@@ -413,15 +418,16 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         # output = "{}/{}/Executable/exec_{}.py".format(hpcc_user, title, i)
         # pickleo = "{}/{}/Object/pickled_{}.sgp".format(hpcc_user, title, i)
         evo = "{}/{}/Evo/evo_{}.csv".format(hpcc_user, title, i)
+        div_save_path = "{}/{}/Div/div_{}.csv".format(hpcc_user, title, i)
         pop_save_path = f"{hpcc_user}/{title}/Population/P{i}/"
         if cp:
             cp = "-cp"
         else:
             cp = ""
         file.write(
-            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -config "
+            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -diversity {} -config "
             "{} {}\n".format(
-                generations, evo, seed + i, pop_save_path, config, cp))
+                generations, evo, seed + i, pop_save_path, div_save_path, config, cp))
         file.write(
             "scontrol show job {}/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
                 hpcc_user, title))

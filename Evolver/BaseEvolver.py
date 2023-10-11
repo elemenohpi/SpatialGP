@@ -1,3 +1,4 @@
+import os
 import pickle
 import eletility
 
@@ -11,6 +12,7 @@ class BaseEvolver(AbstractEvolver):
         super().__init__(config, pop_obj, fitness_obj)
         self.pop = pop_obj
         self.config = config
+        self.diversity_file = self.config["diversity_file"]
         self.generations = int(self.config["generations"])
         self.fitness_obj = fitness_obj
         # self.interpreter_obj = interpreter_obj
@@ -32,6 +34,10 @@ class BaseEvolver(AbstractEvolver):
         log_interval = 10
         log_counter = 0
         log_stack = ""
+        #         DIVERSITY
+        with open(self.diversity_file, "w") as file:
+            file.truncate()
+
         for generation in range(start_gen, self.generations):
             self.gen = generation
             log_counter += 1
@@ -108,6 +114,10 @@ class BaseEvolver(AbstractEvolver):
 
             self.pop.pop[index].fitness = fitness
             sum_fitness += fitness
+            with open(self.diversity_file, "a") as file:
+                file.write(f"{fitness}, ")
+        with open(self.diversity_file, "a") as file:
+            file.write(f"\n")
         return sum_fitness / len(self.pop.pop)
 
     def sort_population(self):
