@@ -1,5 +1,4 @@
 import random
-from multiprocessing import Pool
 
 
 def mutate(config, model, gen):
