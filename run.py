@@ -362,6 +362,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         os.mkdir("{}/{}/Slurm".format(hpcc_user, title))
         os.mkdir("{}/{}/Evo".format(hpcc_user, title))
         os.mkdir("{}/{}/Div".format(hpcc_user, title))
+        os.mkdir("{}/{}/Stat".format(hpcc_user, title))
         os.mkdir("{}/{}/Population".format(hpcc_user, title))
         for rep in range(reps):
             os.mkdir("{}/{}/Population/P{}".format(hpcc_user, title, rep))
@@ -425,6 +426,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         # pickleo = "{}/{}/Object/pickled_{}.sgp".format(hpcc_user, title, i)
         evo = "{}/{}/Evo/evo_{}.csv".format(hpcc_user, title, i)
         div_save_path = "{}/{}/Div/div_{}.csv".format(hpcc_user, title, i)
+        stat_save_path = "{}/{}/Stat/stats_{}.csv".format(hpcc_user, title, i)
         pop_save_path = f"{hpcc_user}/{title}/Population/P{i}/"
         if cp:
             cp = "-cp"
@@ -433,7 +435,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         file.write(
             "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -diversity {} -stats {} -config "
             "{} {}\n".format(
-                generations, evo, seed + i, pop_save_path, div_save_path, config, cp))
+                generations, evo, seed + i, pop_save_path, div_save_path, stat_save_path, config, cp))
         file.write(
             "scontrol show job {}/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
                 hpcc_user, title))
