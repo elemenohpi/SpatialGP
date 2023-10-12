@@ -1,4 +1,3 @@
-import os
 import pickle
 import eletility
 
@@ -13,9 +12,9 @@ class BaseEvolver(AbstractEvolver):
         self.pop = pop_obj
         self.config = config
         self.diversity_file = self.config["diversity_file"]
+        self.stats_file = self.config["stats_file"]
         self.generations = int(self.config["generations"])
         self.fitness_obj = fitness_obj
-        # self.interpreter_obj = interpreter_obj
         self.tournament_size = int(self.config["tournament_size"])
         self.elitism = int(self.config["elitism"])
         self.save_annotation = self.config["save_annotation"]
@@ -36,6 +35,8 @@ class BaseEvolver(AbstractEvolver):
         log_stack = ""
         #         DIVERSITY
         with open(self.diversity_file, "w") as file:
+            file.truncate()
+        with open(self.stats_file, "w") as file:
             file.truncate()
 
         for generation in range(start_gen, self.generations):
@@ -111,12 +112,15 @@ class BaseEvolver(AbstractEvolver):
 
             fitness = self.fitness_obj.evaluate(individual)
             fitness = round(fitness, 10)
-
             self.pop.pop[index].fitness = fitness
             sum_fitness += fitness
+            with open(self.stats_file, "a") as file:
+                file.write(f"{individual.executed_instructions_count}, ")
             with open(self.diversity_file, "a") as file:
                 file.write(f"{fitness}, ")
         with open(self.diversity_file, "a") as file:
+            file.write(f"\n")
+        with open(self.stats_file, "a") as file:
             file.write(f"\n")
         return sum_fitness / len(self.pop.pop)
 

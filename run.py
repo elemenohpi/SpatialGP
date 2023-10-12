@@ -45,6 +45,7 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-config", help="Config file to operate with")
     parser.add_argument("-output", help="Path to the output file")
     parser.add_argument("-diversity", help="Path to the diversity file")
+    parser.add_argument("-stats", help="Path to the stats file")
     parser.add_argument("-pickle", help="Path to the pickled object")
     parser.add_argument("-evo", help="Path to the evolutionary output")
     parser.add_argument("-generations", help="Number of generations")
@@ -153,8 +154,13 @@ It handles all of the command line arguments and calls other functions as needed
     if args.output:
         config["best_program"] = args.output
 
+    # diversity file
     if args.diversity:
         config["diversity_file"] = args.diversity
+
+    # stat file
+    if args.stats:
+        config["stats_file"] = args.stats
 
     # pickle output file
     if args.pickle:
@@ -425,7 +431,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         else:
             cp = ""
         file.write(
-            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -diversity {} -config "
+            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -diversity {} -stats {} -config "
             "{} {}\n".format(
                 generations, evo, seed + i, pop_save_path, div_save_path, config, cp))
         file.write(

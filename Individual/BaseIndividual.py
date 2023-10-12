@@ -22,6 +22,7 @@ class BaseIndividual(AbstractIndividual):
         self.has_output = False
         self.config = config
         self.execution_order = []
+        self.executed_instructions_count = 0
         self.programs_class = programs_class
         self.init_size_min = int(self.config["init_size_min"])
         self.init_size_max = int(self.config["init_size_max"])
@@ -311,7 +312,7 @@ class BaseIndividual(AbstractIndividual):
 
     def evaluate(self, problem_inputs):
         self.initialize_memory(problem_inputs)
-
+        self.executed_instructions_count = 0
         current_program = None
         indv_return_value = None
         discrete_output = None
@@ -350,7 +351,7 @@ class BaseIndividual(AbstractIndividual):
                 self.analysis_executed_statements_count += len(current_program.statements)
 
             temp_output = current_program.program_eval(self.internal_state)
-
+            self.executed_instructions_count += len(current_program.statements) - 1
             # ToDo:: end and exit are not implemented in the output program
             if temp_output == "end":
                 programs_copy.remove(current_program)

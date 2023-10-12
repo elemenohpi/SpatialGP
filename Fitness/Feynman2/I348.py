@@ -15,7 +15,7 @@ class I348(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()
-        self.evaluation_method = "correlation"  # or rmse
+        self.evaluation_method = "rmse"  # or rmse
         self.evaluation_count = 10
         self.data_handler = DataHandler("Fitness/Feynman/example_data.txt", self)
 
