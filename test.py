@@ -1,4 +1,15 @@
-footballers_goals = {'Eusebio': 120, 'Cruyff': 104, 'Pele': 150, 'Ronaldo': 132, 'Messi': 125}
-print(footballers_goals.items())
-sorted_footballers_by_goals = sorted(footballers_goals.items(), key=lambda x: x[1], reverse=True)
-print(sorted_footballers_by_goals)
+import numpy as np
+
+a = [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
+b = [[3, 3, 3], [2, 2, 2], [1, 1, 1]]
+
+array1 = np.array(a)
+array2 = np.array(b)
+
+all = [array1, array2]
+
+average = np.average(all, axis=0)
+
+average = average.tolist()
+
+print(average)
