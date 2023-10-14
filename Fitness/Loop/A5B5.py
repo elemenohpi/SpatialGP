@@ -11,7 +11,7 @@ from Handlers.DataHandler import DataHandler
 warnings.filterwarnings("ignore")
 
 
-class A20B20(AbstractFitness):
+class A5B5(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()

@@ -75,7 +75,7 @@ class DEAPtoEvo:
 if __name__ == "__main__":
     # path = input("Enter directory: ")
     # key = input("Enter key: ")
-    my_path = "../../Results/Compressed/TreeGPAll/"
+    my_path = "../../Results/Compressed/setare"
     # my_path = "../../Results/"
     my_key = ""
 
