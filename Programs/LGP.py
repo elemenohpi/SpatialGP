@@ -207,7 +207,7 @@ class LGP(AbstractPrograms):
     def distance_to_pos(self, source_pos, pos):
         return math.sqrt((pos[0] - source_pos[0]) ** 2 + (pos[1] - source_pos[1]) ** 2)
 
-    def find_random_spatial_position(self):
+    def find_random_spatial_position(self, index=None):
         init_radius = float(self.config["init_radius"])
         if self.config["topology"] == "circle":
             return self.get_point_on_circle(init_radius)
@@ -215,6 +215,8 @@ class LGP(AbstractPrograms):
             return self.get_point_on_ring(init_radius)
         elif self.config["topology"] == "line":
             return self.get_point_on_line(init_radius)
+        elif self.config["topology"] == "lattice":
+            return self.get_point_on_lattice(init_radius, index)
         return None
 
     def get_point_on_line(self, d):
@@ -386,3 +388,15 @@ class LGP(AbstractPrograms):
                 annotation += statement.annotate() + "\n"
 
         return annotation
+
+    def get_point_on_lattice(self, init_radius, index):
+        max_program_count = int(self.config["size_max"])
+        size = math.floor(math.sqrt(max_program_count)) + 1
+
+        row = int(index / size)
+        col = index % size
+
+        x, y = init_radius/size * col, init_radius/size * row
+
+        return x, y
+

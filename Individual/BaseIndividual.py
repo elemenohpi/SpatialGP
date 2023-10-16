@@ -45,11 +45,10 @@ class BaseIndividual(AbstractIndividual):
 
     def init_random(self):
         program_count = random.randint(self.init_size_min, self.init_size_max)
-
         for i in range(program_count):
             program = self.programs_class(self.config)
             program.generate()
-            program.pos = program.find_random_spatial_position()
+            program.pos = program.find_random_spatial_position(i)
             if not self.has_discrete_output and not self.output_ratio == "single" and not self.output_ratio == "none":
                 if random.random() < self.output_ratio:
                     program.program_type = "O"
