@@ -4,6 +4,7 @@ import eletility
 from Evolver.AbstractEvolver import AbstractEvolver
 from Evolver.Crossover import *
 from Evolver.Mutation import *
+from Localization.LocalizationHandler import Localization
 
 
 class BaseEvolver(AbstractEvolver):
@@ -32,12 +33,15 @@ class BaseEvolver(AbstractEvolver):
         log_interval = 10
         log_counter = 0
         log_stack = ""
+        localization_handler = Localization(self.config)
+
         for generation in range(start_gen, self.generations):
             self.gen = generation
             log_counter += 1
             log_msg = "\t{}: ".format(generation)
             average_fitness = self.update_population_fitness()
             self.sort_population()
+            localization_handler.save(self.pop.pop)
             if log_counter % log_interval == 0:
                 self.save_pop(generation)
             average_length = 0

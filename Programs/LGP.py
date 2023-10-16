@@ -10,6 +10,7 @@ from retcon import Retcon
 class LGP(AbstractPrograms):
     def __init__(self, config):
         super().__init__(config)
+        self.executed = False
         self.visit_count = 0
         self.highest_cost = 0
         config_handler = ConfigHandler(config)

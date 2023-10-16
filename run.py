@@ -53,6 +53,7 @@ The function takes no parameters and returns a Namespace object containing the p
     parser.add_argument("-test_model", help="Tests a given model")
     parser.add_argument("-save_output", help="Saves the current experiment files in Output", action='store_true')
     parser.add_argument("-pop_save_path", help="Path to where the population pickle files are saved")
+    parser.add_argument("-loc_save_path", help="Path to where the localization files are saved")
     parser.add_argument("-formulize", help="Simplifies and formulizes a given pickled SGP model into mathematical "
                                            "equations (if applicable)")
     parser.add_argument("-cp", help="Forces the system to use the checkpointing mechanism which loads a population"
@@ -162,6 +163,9 @@ It handles all of the command line arguments and calls other functions as needed
 
     if args.pop_save_path:
         config["pop_save_path"] = args.pop_save_path
+
+    if args.loc_save_path:
+        config["localization_file"] = args.loc_save_path
 
     # Run an HPCC experiment with a single config file
     if args.hpcc:
@@ -352,6 +356,7 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         os.mkdir("{}/{}/Slurm".format(hpcc_user, title))
         os.mkdir("{}/{}/Evo".format(hpcc_user, title))
         os.mkdir("{}/{}/Population".format(hpcc_user, title))
+        os.mkdir("{}/{}/Location".format(hpcc_user, title))
         for rep in range(reps):
             os.mkdir("{}/{}/Population/P{}".format(hpcc_user, title, rep))
         # os.mkdir("{}/{}/Object".format(hpcc_user, title))
@@ -414,14 +419,15 @@ def hpcc(reps, hours, generations, seed, title, config, cp):
         # pickleo = "{}/{}/Object/pickled_{}.sgp".format(hpcc_user, title, i)
         evo = "{}/{}/Evo/evo_{}.csv".format(hpcc_user, title, i)
         pop_save_path = f"{hpcc_user}/{title}/Population/P{i}/"
+        loc_save_path = "{}/{}/Location/loc_{}.csv".format(hpcc_user, title, i)
         if cp:
             cp = "-cp"
         else:
             cp = ""
         file.write(
-            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -config "
+            "srun -n 1 python run.py -generations {} -evo {} -seed {} -pop_save_path {} -loc_save_path {} -config "
             "{} {}\n".format(
-                generations, evo, seed + i, pop_save_path, config, cp))
+                generations, evo, seed + i, pop_save_path, loc_save_path, config, cp))
         file.write(
             "scontrol show job {}/{}/Slurm/$SLURM_JOB_ID     ### write job information to output file".format(
                 hpcc_user, title))

@@ -14,6 +14,7 @@ def distance_to_pos(source_pos, pos):
 class BaseIndividual(AbstractIndividual):
     def __init__(self, config, programs_class):
         super().__init__(config, programs_class)
+        self.executed_programs = []
         self.analysis = False
         self.analysis_execution_info = []
         self.analysis_additional_info = {}
@@ -310,6 +311,7 @@ class BaseIndividual(AbstractIndividual):
         self.programs.append(program)
 
     def evaluate(self, problem_inputs):
+
         self.initialize_memory(problem_inputs)
 
         current_program = None
@@ -350,6 +352,7 @@ class BaseIndividual(AbstractIndividual):
                 self.analysis_executed_statements_count += len(current_program.statements)
 
             temp_output = current_program.program_eval(self.internal_state)
+            self.executed_programs.append(current_program.pos)
 
             # ToDo:: end and exit are not implemented in the output program
             if temp_output == "end":
