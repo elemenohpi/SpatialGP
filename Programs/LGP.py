@@ -103,28 +103,31 @@ class LGP(AbstractPrograms):
         return indented_program_txt
 
     def lgp_mutation(self):
+        lgp_mutation_rate = float(self.config["lgp_mutation_rate"])
+        if self.pos[0] >= 0 and self.pos[1] >= 0:
+            lgp_mutation_rate += float(self.config["q1_mutation_increase_rate"])
         rand = random.random()
-        if rand <= float(self.config["lgp_mutation_rate"]):
+        if rand <= lgp_mutation_rate:
             self.add_lgp_statement_mutation()
 
         rand = random.random()
-        if rand <= float(self.config["lgp_mutation_rate"]):
+        if rand <= lgp_mutation_rate:
             self.remove_lgp_statement_mutation()
 
         for statement in self.statements:
             if statement == self.statements[-1]:
                 rand = random.random()
-                if rand <= float(self.config["lgp_mutation_rate"]):
+                if rand <= lgp_mutation_rate:
                     self.mutate_return_value()
                 continue
 
             rand = random.random()
-            if rand <= float(self.config["lgp_mutation_rate"]):
+            if rand <= lgp_mutation_rate:
                 if len(statement.demands()) > 0:
                     self.change_operand_mutation(statement)
 
             rand = random.random()
-            if rand <= float(self.config["lgp_mutation_rate"]):
+            if rand <= lgp_mutation_rate:
                 if len(statement.products()) > 0:
                     self.change_output_mutation(statement)
 

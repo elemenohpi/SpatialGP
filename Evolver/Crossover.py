@@ -44,6 +44,7 @@ def distance_to_pos(source_pos, pos):
 
 ########################################################################################################
 def circle_crossover(a, b, config):
+    raise NotImplemented("TOO BUGGY!")
     init_radius = float(config["init_radius"])
     radius = int(init_radius / 2)
     rand_x, rand_y = find_random_spatial_position(config)
@@ -99,7 +100,6 @@ def circle_crossover(a, b, config):
         offspring_b = copy.deepcopy(b)
 
     return offspring_a, offspring_b
-
 
 
 # def circle_crossover(a, b, config):
@@ -170,3 +170,57 @@ def circle_crossover(a, b, config):
 #
 #     return offspring_a, offspring_b
 
+def q1_crossover(a, b, config):
+    max_size = int(config["size_max"])
+    a_output = []
+    a_inside = []
+    a_outside = []
+    b_output = []
+    b_inside = []
+    b_outside = []
+    for program in a.programs:
+        if program.program_type == "O":
+            a_output.append(program)
+            continue
+        if program.pos[0] > 0 and program.pos[1] > 0:
+            a_inside.append(program)
+            continue
+        a_outside.append(program)
+    for program in b.programs:
+        if program.program_type == "O":
+            b_output.append(program)
+            continue
+        if program.pos[0] > 0 and program.pos[1] > 0:
+            b_inside.append(program)
+            continue
+        b_outside.append(program)
+
+    indv_blueprint = type(a)
+    prog_blueprint = type(a.programs[0])
+
+    offspring_a = indv_blueprint(config, prog_blueprint)
+    offspring_b = indv_blueprint(config, prog_blueprint)
+
+    ab_programs = a_inside + b_outside
+    ba_programs = b_inside + a_outside
+
+    if len(ab_programs) >= max_size:
+        ab_programs = copy.deepcopy(ab_programs[:max_size - 2])
+
+    if len(ba_programs) >= max_size:
+        ba_programs = copy.deepcopy(ba_programs[:max_size - 2])
+
+    offspring_a.programs = ab_programs + a_output
+    offspring_b.programs = ba_programs + b_output
+
+    offspring_a = copy.deepcopy(offspring_a)
+    offspring_b = copy.deepcopy(offspring_b)
+
+    if len(offspring_a.programs) == 0 or len(offspring_a.programs) > max_size:
+        print(len(offspring_a.programs), max_size)
+        offspring_a = copy.deepcopy(a)
+    elif len(offspring_b.programs) == 0 or len(offspring_b.programs) > max_size:
+        print(len(offspring_b.programs), max_size)
+        offspring_b = copy.deepcopy(b)
+
+    return offspring_a, offspring_b

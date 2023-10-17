@@ -199,5 +199,6 @@ class BaseEvolver(AbstractEvolver):
 
     def crossover(self, a, b):
         # ToDo:: Variety in crossover
-        c, d = circle_crossover(a, b, self.config)
+        # c, d = circle_crossover(a, b, self.config)
+        c, d = q1_crossover(a, b, self.config)
         return c, d

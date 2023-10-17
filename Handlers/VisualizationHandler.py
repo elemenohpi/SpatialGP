@@ -313,7 +313,7 @@ class VisualizationHandler:
     def generate_heatmap_plot_html(self, index):
         if index == 2:
             html = f'''
-                <img src='heatmap.png' style="width: 600px; height: 430px ">
+                <img src='heatmap.png' style="width: 500px; height: 500px ">
                 </img>
             '''
             return html

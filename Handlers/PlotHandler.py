@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib import ticker
 from matplotlib.patches import Circle
 from scipy import stats
+import seaborn as sns
 
 
 def create_evo_plots(file_path, output_path):
@@ -50,44 +51,88 @@ def create_evo_plots(file_path, output_path):
     plt.close()
 
 
-def create_heatmap(coordinates, file_path, radius):
-    # Extract x and y coordinates from the input list
-    x = [coord[0] for coord in coordinates]
-    y = [coord[1] for coord in coordinates]
+# def create_heatmap(coordinates, file_path, radius):
+#     x_coords, y_coords = zip(*coordinates)
+#     heatmap, xedges, yedges = np.histogram2d(x_coords, y_coords, bins=50)
+#     plt.figure(figsize=(10, 8))
+#     sns.heatmap(heatmap.T, cmap='hot', cbar=True)
+#     plt.show()
+#     pass
 
-    # Define the grid for the heatmap
-    grid_size = 100  # Adjust this value to control the resolution of the heatmap
-    x_range = np.linspace(min(x) - radius, max(x) + radius, grid_size)
-    y_range = np.linspace(min(y) - radius, max(y) + radius, grid_size)
-    xx, yy = np.meshgrid(x_range, y_range)
+def create_heatmap(points, file_path, r):
+    # Extract x and y values
+    x_vals = [p[0] for p in points]
+    y_vals = [p[1] for p in points]
 
-    # Create the heatmap using the interpolated values
-    heatmap = np.zeros((grid_size, grid_size))
-    for coord in coordinates:
-        heatmap += np.exp(-((xx - coord[0]) ** 2 + (yy - coord[1]) ** 2))
+    # Create the KDE plot with reduced bandwidth
+    plt.figure(figsize=(10, 10))
+    sns.kdeplot(x=x_vals, y=y_vals, cmap="Reds", fill=True, bw_method=0.1, levels=100)
 
-    # Plot the heatmap
-    plt.imshow(heatmap, extent=(x_range.min(), x_range.max(), y_range.min(), y_range.max()), origin='lower',
-               cmap='hot')
-    plt.colorbar()
-
-    # Plot the circle
-    circle = Circle((0, 0), radius, edgecolor='blue', facecolor='none')
+    # Plot the circle to visualize the boundary
+    circle = plt.Circle((0, 0), r, color='black', fill=False)
     plt.gca().add_patch(circle)
 
-    # Add x and y axes
-    plt.axhline(0, color='blue', linestyle='--', linewidth=0.5)
-    plt.axvline(0, color='blue', linestyle='--', linewidth=0.5)
+    # Add x and y axis
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
 
-    # Set plot labels and title
-    plt.xlabel('X')
-    plt.ylabel('Y')
+    # Set the aspect of the plot to be equal, so the circle isn't elliptical
+    plt.gca().set_aspect('equal', adjustable='box')
+
+    # Adjust the x and y limits to ensure the entire circle is visible
+    plt.xlim([-r-1, r+1])
+    plt.ylim([-r-1, r+1])
+
+    # Display the plot
     plt.title('Spatial heatmap of the population')
-
+    #
     # Save the plot as an image file
     plt.savefig(file_path)
     plt.close()
 
+# def create_heatmap(coordinates, file_path, radius):
+#
+#     # Extract x and y coordinates from the input list
+#     x = [coord[0] for coord in coordinates]
+#     y = [coord[1] for coord in coordinates]
+#
+#     # plt.hist2d(x, y, bins=[np.arange(-100, 100, 10), np.arange(-100, 100, 10)])
+#     # plt.show()
+#     # exit()
+#
+#     # Define the grid for the heatmap
+#     grid_size = 100  # Adjust this value to control the resolution of the heatmap
+#     x_range = np.linspace(min(x) - radius, max(x) + radius, grid_size)
+#     y_range = np.linspace(min(y) - radius, max(y) + radius, grid_size)
+#     xx, yy = np.meshgrid(x_range, y_range)
+#
+#     # Create the heatmap using the interpolated values
+#     heatmap = np.zeros((grid_size, grid_size))
+#     for coord in coordinates:
+#         heatmap += np.exp(-((xx - coord[0]) ** 2 + (yy - coord[1]) ** 2))
+#
+#     # Plot the heatmap
+#     plt.imshow(heatmap, extent=(x_range.min(), x_range.max(), y_range.min(), y_range.max()), origin='lower',
+#                cmap='hot')
+#     plt.colorbar()
+#
+#     # Plot the circle
+#     circle = Circle((0, 0), radius, edgecolor='blue', facecolor='none')
+#     plt.gca().add_patch(circle)
+#
+#     # Add x and y axes
+#     plt.axhline(0, color='blue', linestyle='--', linewidth=0.5)
+#     plt.axvline(0, color='blue', linestyle='--', linewidth=0.5)
+#
+#     # Set plot labels and title
+#     plt.xlabel('X')
+#     plt.ylabel('Y')
+#     plt.title('Spatial heatmap of the population')
+#
+#     # Save the plot as an image file
+#     plt.savefig(file_path)
+#     plt.close()
+#
 
 def get_avg_dataframe(path_to_files, max_gen):
     files = [file for file in os.listdir(path_to_files) if file.endswith('.csv')]
