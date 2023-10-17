@@ -205,6 +205,12 @@ class LGP(AbstractPrograms):
         statement.outputs[random_operand_index] = output
 
     def distance_to_pos(self, source_pos, pos):
+        if self.config["topology"] == "3D":
+            if source_pos == (0, 0):
+                source_pos = (0, 0, 0)
+            x1, y1, z1 = source_pos
+            x2, y2, z2 = pos
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
         return math.sqrt((pos[0] - source_pos[0]) ** 2 + (pos[1] - source_pos[1]) ** 2)
 
     def find_random_spatial_position(self, index):
@@ -217,6 +223,8 @@ class LGP(AbstractPrograms):
             return self.get_point_on_line(init_radius)
         elif self.config["topology"] == "lattice":
             return self.get_point_on_lattice(init_radius, index)
+        elif self.config["topology"] == "3D":
+            return self.get_3D_point(init_radius)
         return None
 
     def get_point_on_line(self, d):
@@ -404,3 +412,20 @@ class LGP(AbstractPrograms):
         x, y = init_radius/size * col, init_radius/size * row
 
         return x, y
+
+    def get_3D_point(self, r):
+        # Generate random azimuthal angle between [0, 2π]
+        theta = 2 * math.pi * random.random()
+
+        # Generate random polar angle between [0, π]
+        phi = math.acos(2 * random.random() - 1)
+
+        # Generate random radius using cube root method for uniform distribution
+        rho = r * (random.random() ** (1 / 3))
+
+        # Convert spherical coordinates to Cartesian coordinates
+        x = rho * math.sin(phi) * math.cos(theta)
+        y = rho * math.sin(phi) * math.sin(theta)
+        z = rho * math.cos(phi)
+
+        return x, y, z
