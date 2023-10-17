@@ -261,7 +261,7 @@ class LGP(AbstractPrograms):
                 if not self.distance_to_pos((0, 0), new_pos) > radius:
                     self.pos = (self.pos[0] + random_step_x, self.pos[1] + random_step_y)
             else:
-                new_pos = self.find_random_spatial_position()
+                new_pos = self.find_random_spatial_position(None)
                 self.pos = new_pos
         else:
             if not self.config["output_ratio"] == "single" and not self.config["output_ratio"] == "none":
