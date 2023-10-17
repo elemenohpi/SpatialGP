@@ -31,16 +31,16 @@ def compare_experiments(path, gen):
                 last_line = lines[-1]
                 tokens = last_line.replace(" ", "").split(",")
                 try:
-                    fitness_list.append([file_path, float(tokens[1])])
+                    fitness_list.append([file_path, float(tokens[1]), int(tokens[0])])
                 except:
                     last_line = lines[-2]
                     tokens = last_line.replace(" ", "").split(",")
-                    fitness_list.append([file_path, float(tokens[1])])
-    sorted_list = sorted(fitness_list, key=lambda x: x[1])
+                    fitness_list.append([file_path, float(tokens[1]), int(tokens[0])])
+    sorted_list = sorted(fitness_list, key=lambda x: x[2])
     total_solved = 0
     avg_fitness = 0
     for element in sorted_list:
-        print(f"{element[1]} for {element[0]}")
+        print(f"Gens: {element[2]} Fitness: {element[1]} for {element[0]}")
         if float(element[1]) == 0:
             total_solved += 1
         avg_fitness += float(element[1])
@@ -49,6 +49,6 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    compare_experiments("../../Results/Compressed/all_conf", "min")
+    compare_experiments("../../HPCC_Experiments/topology_and_localization_results/", "")
 
 

@@ -166,7 +166,12 @@ Output/evo.csv
 Output/evo.csv
 Output/evo.csv
 Output/evo.csv
+<<<<<<< Updated upstream
 /diversity_results/
 /loop/
 /scratch/
 /diversity_results/
+=======
+/scratch/
+/scratch.tar.gz
+>>>>>>> Stashed changes
