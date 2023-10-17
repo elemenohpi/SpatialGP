@@ -48,7 +48,7 @@ class BaseIndividual(AbstractIndividual):
         for i in range(program_count):
             program = self.programs_class(self.config)
             program.generate()
-            program.pos = program.find_random_spatial_position()
+            program.pos = program.find_random_spatial_position(i)
             if not self.has_discrete_output and not self.output_ratio == "single" and not self.output_ratio == "none":
                 if random.random() < self.output_ratio:
                     program.program_type = "O"
@@ -303,7 +303,7 @@ class BaseIndividual(AbstractIndividual):
             return
         program = self.programs_class(self.config)
         program.generate()
-        program.pos = program.find_random_spatial_position()
+        program.pos = program.find_random_spatial_position(len(self.programs))
         if not self.has_discrete_output and not self.output_ratio == "single" and not self.output_ratio == "none":
             if random.random() < self.output_ratio:
                 program.program_type = "O"
