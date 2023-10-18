@@ -40,33 +40,44 @@ class RepData:
 
     def get_all_localization_info(self, epsilon, min_samples):
         cluster_info = []
+        cluster_member_count_info = []
         for gen in self.all_data:
             sum_clusters_per_gen = 0
+            clustered_member_count_per_gen = 0
             for indv in gen:
                 db = DBSCAN(eps=epsilon, min_samples=min_samples).fit(indv)
                 cluster_set = list(set(db.labels_))
                 if -1 in cluster_set:
                     cluster_set.remove(-1)
+                for cluster in cluster_set:
+                    clustered_member_count_per_gen += db.labels_.count(cluster)
                 cluster_count = len(cluster_set)
                 sum_clusters_per_gen += cluster_count
-            print(sum_clusters_per_gen / len(gen))
+
+            print(sum_clusters_per_gen / len(gen), clustered_member_count_per_gen / len(gen))
             cluster_info.append(sum_clusters_per_gen / len(gen))
-        return cluster_info
+            cluster_member_count_info.append(clustered_member_count_per_gen / len(gen))
+        return cluster_info, cluster_member_count_info
 
     def get_executed_localization_info(self, epsilon, min_samples):
         cluster_info = []
+        cluster_member_count_info = []
         for gen in self.executed_data:
             sum_clusters_per_gen = 0
+            clustered_member_count_per_gen = 0
             for indv in gen:
                 db = DBSCAN(eps=epsilon, min_samples=min_samples).fit(indv)
                 cluster_set = list(set(db.labels_))
                 if -1 in cluster_set:
                     cluster_set.remove(-1)
+                for cluster in cluster_set:
+                    clustered_member_count_per_gen += db.labels_.count(cluster)
                 cluster_count = len(cluster_set)
                 sum_clusters_per_gen += cluster_count
-            print(sum_clusters_per_gen / len(gen))
+            print(sum_clusters_per_gen / len(gen), clustered_member_count_per_gen / len(gen))
             cluster_info.append(sum_clusters_per_gen / len(gen))
-        return cluster_info
+            cluster_member_count_info.append(clustered_member_count_per_gen / len(gen))
+        return cluster_info, cluster_member_count_info
 
 
 class Analysis:
@@ -87,15 +98,20 @@ class Analysis:
             rep_files = os.listdir(loc_file_path)
             run_info = []
             executed_run_info = []
+            run_count_info = []
+            executed_run_count_info = []
             for index, rep_file in enumerate(rep_files):
                 full_file_path = os.path.join(loc_file_path, rep_file)
                 rep = self.load(full_file_path)
                 print(f"{index + 1}/{len(rep_files)} results for: ", full_file_path)
-                localization_info = rep.get_all_localization_info(self.epsilon, self.min_sample)
+                localization_info, localization_count_info = rep.get_all_localization_info(self.epsilon, self.min_sample)
                 print("Executed:")
-                executed_localization_info = rep.get_executed_localization_info(self.epsilon, self.min_sample)
+                executed_localization_info, executed_localization_count_info = rep.get_executed_localization_info(self.epsilon, self.min_sample)
                 run_info.append(localization_info)
+                run_count_info.append(localization_count_info)
                 executed_run_info.append(executed_localization_info)
+                executed_run_count_info.append(executed_localization_count_info)
+
             zip_str = "zip("
             for info in range(len(run_info)):
                 zip_str += f"run_info[{info}], "

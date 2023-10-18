@@ -10,6 +10,7 @@ from Handlers.PlotHandler import *
 
 class VisualizationHandler:
     def __init__(self):
+        self.heatmap_output_path = None
         self.radius = None
 
     def get_files_in_path(self, path):
@@ -42,12 +43,19 @@ class VisualizationHandler:
         all_exe_p_count = []
         all_exe_s_count = []
         print(path_to_pop)
-        pickled_object = open(path_to_pop, "rb")
-        pop_object = pickle.load(pickled_object)
+        try:
+            pickled_object = open(path_to_pop, "rb")
+        except FileNotFoundError:
+            exp_num = input("Experiment detected, enter experiment number: ")
+            path_to_pop = path_to_pop[:-7] + "P" + exp_num + "/" + "pop.sgp"
+            pickled_object = open(path_to_pop, "rb")
 
+        pop_object = pickle.load(pickled_object)
         for index, individual in enumerate(pop_object.pop):
             # get_execution_info should run first in case you want to tag programs with an id before proceeding. Perhaps
             # this could be moved elsewhere?
+            if not hasattr(individual, "executed_programs"):
+                individual.executed_programs = []
             fitness, execution_info, additional_info = individual.get_execution_info()
             fitness = round(fitness, 10)
 
@@ -74,6 +82,7 @@ class VisualizationHandler:
             all_exe_s_count.append(additional_info["exe_s_count"])
 
         heatmap_output_path = path_to_experiment + "Analysis/heatmap.png"
+        self.heatmap_output_path = heatmap_output_path
 
         self.generate_heatmap(all_individuals, heatmap_output_path)
 
@@ -313,7 +322,7 @@ class VisualizationHandler:
     def generate_heatmap_plot_html(self, index):
         if index == 2:
             html = f'''
-                <img src='heatmap.png' style="width: 600px; height: 430px ">
+                <img src='../../{self.heatmap_output_path}' style="width: 600px; height: 600px ">
                 </img>
             '''
             return html

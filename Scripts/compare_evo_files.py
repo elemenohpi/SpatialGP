@@ -49,6 +49,6 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    compare_experiments("../../HPCC_Experiments/Localization/", "")
+    compare_experiments("../../HPCC_Experiments/Topology/", "")
 
 

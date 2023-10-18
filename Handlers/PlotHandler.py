@@ -1,4 +1,5 @@
 import os
+import random
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +7,7 @@ import numpy as np
 from matplotlib import ticker
 from matplotlib.patches import Circle
 from scipy import stats
+import seaborn as sns
 
 
 def create_evo_plots(file_path, output_path):
@@ -23,7 +25,11 @@ def create_evo_plots(file_path, output_path):
     ax.legend()
 
     # Display the plot
-    plt.savefig(output_path + "best_plot.png")
+    try:
+        plt.savefig(output_path + "best_plot.png")
+    except:
+        os.mkdir(output_path)
+
     plt.close()
 
     fig, ax = plt.subplots()
@@ -50,41 +56,35 @@ def create_evo_plots(file_path, output_path):
     plt.close()
 
 
-def create_heatmap(coordinates, file_path, radius):
-    # Extract x and y coordinates from the input list
-    x = [coord[0] for coord in coordinates]
-    y = [coord[1] for coord in coordinates]
+def create_heatmap(points, file_path, r):
+    print(points)
+    # Extract x and y values
+    x_vals = [p[0] for p in points]
+    y_vals = [p[1] for p in points]
+    # Create the KDE plot with reduced bandwidth
+    plt.figure(figsize=(10, 10))
+    sns.kdeplot(x=x_vals, y=y_vals, cmap="Reds", fill=True, bw_method=0.1, levels=100)
 
-    # Define the grid for the heatmap
-    grid_size = 100  # Adjust this value to control the resolution of the heatmap
-    x_range = np.linspace(min(x) - radius, max(x) + radius, grid_size)
-    y_range = np.linspace(min(y) - radius, max(y) + radius, grid_size)
-    xx, yy = np.meshgrid(x_range, y_range)
-
-    # Create the heatmap using the interpolated values
-    heatmap = np.zeros((grid_size, grid_size))
-    for coord in coordinates:
-        heatmap += np.exp(-((xx - coord[0]) ** 2 + (yy - coord[1]) ** 2))
-
-    # Plot the heatmap
-    plt.imshow(heatmap, extent=(x_range.min(), x_range.max(), y_range.min(), y_range.max()), origin='lower',
-               cmap='hot')
-    plt.colorbar()
-
-    # Plot the circle
-    circle = Circle((0, 0), radius, edgecolor='blue', facecolor='none')
+    # Plot the circle to visualize the boundary
+    circle = plt.Circle((0, 0), r, color='black', fill=False)
     plt.gca().add_patch(circle)
 
-    # Add x and y axes
-    plt.axhline(0, color='blue', linestyle='--', linewidth=0.5)
-    plt.axvline(0, color='blue', linestyle='--', linewidth=0.5)
+    # Add x and y axis
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
 
-    # Set plot labels and title
-    plt.xlabel('X')
-    plt.ylabel('Y')
+    # Set the aspect of the plot to be equal, so the circle isn't elliptical
+    plt.gca().set_aspect('equal', adjustable='box')
+
+    # Adjust the x and y limits to ensure the entire circle is visible
+    plt.xlim([-r-1, r+1])
+    plt.ylim([-r-1, r+1])
+
+    # Display the plot
     plt.title('Spatial heatmap of the population')
-
+    #
     # Save the plot as an image file
+    plt.show()
     plt.savefig(file_path)
     plt.close()
 
@@ -134,7 +134,7 @@ def compare_experiments(path, n=100, key=None):
     fig, ax = plt.subplots()
     colors = ["blue", "red", "green", "brown", "purple", "yellow", "cyan", "orange", "pink", "Black", "lime", "Gray",
               "crimson", "lavender", "indigo", "teal", "maroon", "fuchsia", "azure", "teal"]
-    labels = ["A20 LGP", "A5B5 LGP", "A20 SGP", "A5B5 SGP"]
+    # labels = ["A20 LGP", "A5B5 LGP", "A20 SGP", "A5B5 SGP"]
     for index, directory_data in enumerate(plot_data):
         gen_data = directory_data[1]["gen"]
         median_best = np.array(directory_data[1]["best"])
@@ -143,7 +143,7 @@ def compare_experiments(path, n=100, key=None):
         percentiles = directory_data[1]["percentiles"]
         lower, upper = zip(*percentiles)
 
-        ax.plot(gen_data, median_best, label=labels[index])
+        ax.plot(gen_data, median_best, label=directory_data[0])
         # ax.errorbar(gen_data, median_best, yerr=[median_best - lower_bound, upper_bound -
         #                                          median_best], fmt='.', capsize=4)
         plt.fill_between(gen_data, lower, upper, color=colors[index],
@@ -187,6 +187,6 @@ if __name__ == "__main__":
     # compare_experiments(f"../../Results/F6/", 100, "Feynman6_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F6LGP_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F")
-    compare_experiments(f"../../HPCC_Experiments/Localization/", 99, "")
+    compare_experiments(f"../../HPCC_Experiments/3D/", 99, "")
     # compare_experiments(f"../../Results/F1-4/F1-4Res/", 100, "Feynman1")
     pass
