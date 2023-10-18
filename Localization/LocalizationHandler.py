@@ -16,7 +16,7 @@ class Localization:
     def init_files(self):
         with open(self.output_path, "w") as file:
             file.truncate()
-    
+
     def write_log(self, log):
         with open(self.output_path, "a") as file:
             file.write(log)
@@ -49,8 +49,8 @@ class RepData:
                     cluster_set.remove(-1)
                 cluster_count = len(cluster_set)
                 sum_clusters_per_gen += cluster_count
-            print(sum_clusters_per_gen/len(gen))
-            cluster_info.append(sum_clusters_per_gen/len(gen))
+            print(sum_clusters_per_gen / len(gen))
+            cluster_info.append(sum_clusters_per_gen / len(gen))
         return cluster_info
 
     def get_executed_localization_info(self, epsilon, min_samples):
@@ -64,8 +64,8 @@ class RepData:
                     cluster_set.remove(-1)
                 cluster_count = len(cluster_set)
                 sum_clusters_per_gen += cluster_count
-            print(sum_clusters_per_gen/len(gen))
-            cluster_info.append(sum_clusters_per_gen/len(gen))
+            print(sum_clusters_per_gen / len(gen))
+            cluster_info.append(sum_clusters_per_gen / len(gen))
         return cluster_info
 
 
@@ -79,6 +79,8 @@ class Analysis:
         all_runs = []
         all_executed_runs = []
         for run in runs:
+            if "a40" not in run or "lgp" in run:
+                continue
             run_path = os.path.join(exp_path, run)
             print(f"-----------------RUN: {run_path}")
             loc_file_path = os.path.join(run_path, "Location")
@@ -88,7 +90,7 @@ class Analysis:
             for index, rep_file in enumerate(rep_files):
                 full_file_path = os.path.join(loc_file_path, rep_file)
                 rep = self.load(full_file_path)
-                print(f"{index+1}/{len(rep_files)} results for: ", full_file_path)
+                print(f"{index + 1}/{len(rep_files)} results for: ", full_file_path)
                 localization_info = rep.get_all_localization_info(self.epsilon, self.min_sample)
                 print("Executed:")
                 executed_localization_info = rep.get_executed_localization_info(self.epsilon, self.min_sample)
@@ -97,7 +99,7 @@ class Analysis:
             zip_str = "zip("
             for info in range(len(run_info)):
                 zip_str += f"run_info[{info}], "
-            zip_str = zip_str[:-2]+")"
+            zip_str = zip_str[:-2] + ")"
             zip_str_executed = "zip("
             for info in range(len(executed_run_info)):
                 zip_str_executed += f"executed_run_info[{info}], "
@@ -124,8 +126,6 @@ class Analysis:
         plt.show()
         plt.close()
 
-
-
     def load(self, path):
         if not os.path.exists(path):
             raise ValueError("Wrong input path value")
@@ -133,7 +133,6 @@ class Analysis:
             lines = file.readlines()
         rep = self.to_rep(lines)
         return rep
-
 
     def to_rep(self, lines):
         rep = RepData()
@@ -171,9 +170,8 @@ class Analysis:
 
 
 if __name__ == "__main__":
-    path = "../scratch/"
+    path = "../../HPCC_Experiments/Localization"
     analysis_handler = Analysis(epsilon=60, min_sample=2)
     analysis_handler.analyze_experiment(path)
 
     pass
-
