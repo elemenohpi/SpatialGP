@@ -36,7 +36,7 @@ def compare_experiments(path, gen):
                     last_line = lines[-2]
                     tokens = last_line.replace(" ", "").split(",")
                     fitness_list.append([file_path, float(tokens[1]), int(tokens[0])])
-    sorted_list = sorted(fitness_list, key=lambda x: x[2])
+    sorted_list = sorted(fitness_list, key=lambda x: x[1])
     total_solved = 0
     avg_fitness = 0
     for element in sorted_list:
@@ -49,6 +49,6 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    compare_experiments("../../HPCC_Experiments/topology_and_localization_results/", "")
+    compare_experiments("../../HPCC_Experiments/Localization/", "")
 
 
