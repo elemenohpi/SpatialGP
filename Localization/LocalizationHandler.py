@@ -50,7 +50,7 @@ class RepData:
                 if -1 in cluster_set:
                     cluster_set.remove(-1)
                 for cluster in cluster_set:
-                    clustered_member_count_per_gen += db.labels_.count(cluster)
+                    clustered_member_count_per_gen += list(db.labels_).count(cluster)
                 cluster_count = len(cluster_set)
                 sum_clusters_per_gen += cluster_count
 
@@ -71,7 +71,7 @@ class RepData:
                 if -1 in cluster_set:
                     cluster_set.remove(-1)
                 for cluster in cluster_set:
-                    clustered_member_count_per_gen += db.labels_.count(cluster)
+                    clustered_member_count_per_gen += list(db.labels_).count(cluster)
                 cluster_count = len(cluster_set)
                 sum_clusters_per_gen += cluster_count
             print(sum_clusters_per_gen / len(gen), clustered_member_count_per_gen / len(gen))
@@ -90,7 +90,7 @@ class Analysis:
         all_runs = []
         all_executed_runs = []
         for run in runs:
-            if "a40" not in run or "lgp" in run:
+            if "lgp" in run or "cluster" in run:
                 continue
             run_path = os.path.join(exp_path, run)
             print(f"-----------------RUN: {run_path}")
