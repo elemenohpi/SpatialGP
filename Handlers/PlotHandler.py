@@ -231,6 +231,6 @@ if __name__ == "__main__":
     # compare_experiments(f"../../Results/F6/", 100, "Feynman6_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F6LGP_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F")
-    compare_experiments(f"../../Results/Compressed/pegah", 99, "")
+    compare_experiments(f"../../HPCC_Experiments/3D", 99, "")
     # compare_experiments(f"../../Results/F1-4/F1-4Res/", 100, "Feynman1")
     pass
