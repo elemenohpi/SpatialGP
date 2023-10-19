@@ -126,6 +126,8 @@ def compare_experiments(path, n=100, key=None):
     directories = list_directories(path, key)
     plot_data = []
     for directory in directories:
+        if "clusters" in directory:
+            continue
         median_dataframe = get_avg_dataframe(os.path.join(path, directory, "Evo"), n)
         directory_data = [directory, median_dataframe]
         plot_data.append(directory_data)
@@ -134,6 +136,7 @@ def compare_experiments(path, n=100, key=None):
     fig, ax = plt.subplots()
     colors = ["blue", "red", "green", "brown", "purple", "yellow", "cyan", "orange", "pink", "Black", "lime", "Gray",
               "crimson", "lavender", "indigo", "teal", "maroon", "fuchsia", "azure", "teal"]
+    # labels = ["LGP", "SGP sm20", "SGP sm40", "SGP sm60"]
     for index, directory_data in enumerate(plot_data):
         gen_data = directory_data[1]["gen"]
         median_best = np.array(directory_data[1]["best"])
@@ -150,8 +153,8 @@ def compare_experiments(path, n=100, key=None):
 
     # Set plot labels and legend
     ax.set_xlabel("Generation")
-    ax.set_ylabel("Fitness")
-    ax.set_title("Fitness over generation for the best individual")
+    ax.set_ylabel("Fitness (RMSE)")
+    ax.set_title("Fitness over generation for the best individuals")
     ax.legend()
 
     # Display the plot
@@ -186,6 +189,6 @@ if __name__ == "__main__":
     # compare_experiments(f"../../Results/F6/", 100, "Feynman6_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F6LGP_II242")
     # compare_experiments(f"../../Results/F6/", 100, "F")
-    compare_experiments(f"../../Results/Compressed/pegah", 99, "")
+    compare_experiments(f"../../HPCC_Experiments/Localization", 99, "")
     # compare_experiments(f"../../Results/F1-4/F1-4Res/", 100, "Feynman1")
     pass

@@ -23,6 +23,8 @@ def compare_experiments(path, gen):
     fitness_list = []
     directories = list_directories(path, None)
     for directory in directories:
+        if "clusters" in directory:
+            continue
         files = list_files(os.path.join(path, directory, "Evo"))
         for file in files:
             file_path = os.path.join(path, directory, "Evo", file)
@@ -49,6 +51,6 @@ def compare_experiments(path, gen):
 
 
 if __name__ == "__main__":
-    compare_experiments("../loop/", "min")
+    compare_experiments("../../HPCC_Experiments/Localization", "")
 
 

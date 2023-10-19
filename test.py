@@ -1,15 +1,11 @@
-import numpy as np
+import matplotlib.pyplot as plt
 
-a = [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
-b = [[3, 3, 3], [2, 2, 2], [1, 1, 1]]
+# Sample data: [[list of means, list of confidence intervals], ...]
+data = [
+    [[1.5, 2.5, 3.5], [(1, 2), (2, 3), (3, 4)]],
+    [[2, 3, 4], [(1.5, 2.5), (2.5, 3.5), (3.5, 4.5)]]
+]
 
-array1 = np.array(a)
-array2 = np.array(b)
 
-all = [array1, array2]
 
-average = np.average(all, axis=0)
 
-average = average.tolist()
-
-print(average)

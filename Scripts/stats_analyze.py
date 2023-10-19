@@ -47,23 +47,29 @@ def analyze_run(directory):
 
 
 def analyze_experiment(path):
+    labels = ["LGP", "SGP sm20", "SGP sm40", "SGP sm60"]
     runs = os.listdir(path)
     dfs = {}
     for run in runs:
+        if run == "DIV":
+            continue
         run = os.path.join(path, run)
         df = analyze_run(run)
         columns = {0: "gen", 1: "range", 2: "std", 3: "mean"}
         df = df.rename(columns=columns)
         dfs[run] = df
     print(dfs)
+    index = 0
     for exp, df in dfs.items():
-        plt.plot(df['gen'], df['std'], label=f'{exp}')
+        plt.plot(df['gen'], df['mean'], label=f'{labels[index]}')
+        index += 1
     plt.xlabel('Generation')
-    plt.ylabel('Standard Deviation')
+    plt.ylabel('Mean')
+    plt.title("Comparison of mean number of \nexecuted statements by programs over generation")
     plt.legend()
     plt.show()
 
 
-path = "../diversity_results/DIV/"
+path = "../diversity_results/"
 
 analyze_experiment(path)
