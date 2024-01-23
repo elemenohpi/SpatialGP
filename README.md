@@ -4,7 +4,7 @@ This repository contains the source code for Spatial Genetic Programming. There 
 
 ## Reference
 For more detailed information about the general implementation, please refer to the following paper:
-- [Spatial Genetic Programming Framework](https://link.springer.com/chapter/10.1007/978-3-031-29573-7_17)
+- [Spatial Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-031-29573-7_17)
 
 Additional information regarding the theoretical aspects of this project will be available as soon as it is published.
 
