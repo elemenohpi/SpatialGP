@@ -45,12 +45,20 @@ class BaseEvolver(AbstractEvolver):
                 average_length += len(individual.programs)
             average_length /= len(self.pop.pop)
 
-            log_msg += "Best: {}, Avg: {}, Best Size: {}, Avg Size: {}". \
-                format(self.pop.pop[0].fitness, average_fitness, len(self.pop.pop[0].programs), average_length)
+            log_msg += "Best: {}, Avg: {}, Best Size: {}, Avg Size: {}".format(
+                self.pop.pop[0].fitness,
+                average_fitness,
+                len(self.pop.pop[0].programs),
+                average_length,
+            )
 
-            save_log_msg = "{}, {}, {}, {}, {}".format(generation, self.pop.pop[0].fitness, average_fitness,
-                                                   len(self.pop.pop[0].programs),
-                                                   average_length)
+            save_log_msg = "{}, {}, {}, {}, {}".format(
+                generation,
+                self.pop.pop[0].fitness,
+                average_fitness,
+                len(self.pop.pop[0].programs),
+                average_length,
+            )
 
             log_stack += save_log_msg + "\n"
 
@@ -87,8 +95,16 @@ class BaseEvolver(AbstractEvolver):
                     bottom_left += 1
                 elif program.pos[0] < 0 and program.pos[1] >= 0:
                     top_left += 1
-        print("Final Positional Counts -> top_right:", top_right, "bot_right:", bottom_right, "bot_left:", bottom_left,
-              "top_left:", top_left)
+        print(
+            "Final Positional Counts -> top_right:",
+            top_right,
+            "bot_right:",
+            bottom_right,
+            "bot_left:",
+            bottom_left,
+            "top_left:",
+            top_left,
+        )
         return self.pop.pop[0].fitness
 
     def update_population_fitness(self):
@@ -123,8 +139,10 @@ class BaseEvolver(AbstractEvolver):
 
     def save_best(self, annotation):
         destination = self.config["best_program"]
-        disclaimer = "# This code is a generated/synthesized QGP model/program\n# =================================" \
-                     "=========== \n\n"
+        disclaimer = (
+            "# This code is a generated/synthesized QGP model/program\n# ================================="
+            "=========== \n\n"
+        )
         self.Files.writeTruncate(destination, disclaimer + annotation)
 
     def save_log(self, log):
@@ -150,7 +168,7 @@ class BaseEvolver(AbstractEvolver):
     def tournament(self):
         new_pop = []
         if self.elitism >= 1:
-            new_pop = copy.deepcopy(self.pop.pop[:self.elitism])
+            new_pop = copy.deepcopy(self.pop.pop[: self.elitism])
 
         for i, indv in enumerate(new_pop):
             indv.individual_index = i
@@ -160,7 +178,9 @@ class BaseEvolver(AbstractEvolver):
             for i in range(self.tournament_size):
                 tournament_list.append(random.choice(self.pop.pop))
             sorted_tournament = self.sort_tournament(tournament_list)
-            parent_a, parent_b = copy.deepcopy(sorted_tournament[0]), copy.deepcopy(sorted_tournament[1])
+            parent_a, parent_b = copy.deepcopy(sorted_tournament[0]), copy.deepcopy(
+                sorted_tournament[1]
+            )
 
             if random.random() < float(self.config["crossover_rate"]):
                 offspring_a, offspring_b = self.crossover(parent_a, parent_b)
@@ -181,12 +201,12 @@ class BaseEvolver(AbstractEvolver):
 
     def pickle_best(self, obj):
         destination = self.config["best_object"]
-        with open(destination, 'wb') as object_file:
+        with open(destination, "wb") as object_file:
             pickle.dump(obj, object_file)
 
     def pickle_object(self, obj, title):
         destination = title
-        with open(destination, 'wb') as object_file:
+        with open(destination, "wb") as object_file:
             pickle.dump(obj, object_file)
 
     def save_pop(self, gen):

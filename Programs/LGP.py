@@ -56,7 +56,11 @@ class LGP(AbstractPrograms):
             if not success_flag:
                 continue
 
-            if op.products()[0] is None or op.products()[0] == "command" or op.products()[0] == "structural":
+            if (
+                op.products()[0] is None
+                or op.products()[0] == "command"
+                or op.products()[0] == "structural"
+            ):
                 break
 
             for product in op.products():
@@ -69,7 +73,9 @@ class LGP(AbstractPrograms):
             if success_flag:
                 break
         if op is None:
-            raise ValueError("There are no suitable function/terminal match to generate LGP statements.")
+            raise ValueError(
+                "There are no suitable function/terminal match to generate LGP statements."
+            )
         return op
 
     def generate(self):
@@ -79,10 +85,14 @@ class LGP(AbstractPrograms):
         return_value_selection_pool = {"float": []}
 
         if "float" in self.terminal_set.keys():
-            return_value_selection_pool["float"] = copy.deepcopy(self.terminal_set["float"])
+            return_value_selection_pool["float"] = copy.deepcopy(
+                self.terminal_set["float"]
+            )
         if "int" in self.terminal_set.keys():
             # lets treat floats and ints equally
-            return_value_selection_pool["float"] += copy.deepcopy(self.terminal_set["int"])
+            return_value_selection_pool["float"] += copy.deepcopy(
+                self.terminal_set["int"]
+            )
 
         if int(self.config["conditional_return"]) <= 0:
             if len(return_value_selection_pool["float"]) > 0:
@@ -91,8 +101,11 @@ class LGP(AbstractPrograms):
                 raise ValueError("No int or float variables to return.")
             self.statements.append(return_var)
         else:
-            retcon_operator = Retcon(int(self.config["conditional_return"]),
-                                     int(self.config["conditional_return_depth"]), return_value_selection_pool)
+            retcon_operator = Retcon(
+                int(self.config["conditional_return"]),
+                int(self.config["conditional_return_depth"]),
+                return_value_selection_pool,
+            )
             retcon_operator.generate()
             self.statements.append(retcon_operator)
 
@@ -132,7 +145,6 @@ class LGP(AbstractPrograms):
         ret_mut_chance = float(self.config["return_mutation_rate_increase_handle"])
         if rand < ret_mut_chance:
             self.mutate_return_value()
-
 
         # # add statement, remove statement, modify statement each have 33% chance
         # rand = random.random()
@@ -178,9 +190,15 @@ class LGP(AbstractPrograms):
         else:
             return_value_selection_pool = copy.deepcopy(self.terminal_set)
             # ToDo:: At some point I had an exit() here but I removed it because I felt like this code should be fine
-            if "float" in return_value_selection_pool.keys() and len(return_value_selection_pool["float"]) > 0:
+            if (
+                "float" in return_value_selection_pool.keys()
+                and len(return_value_selection_pool["float"]) > 0
+            ):
                 return_var = random.choice(return_value_selection_pool["float"])
-            elif "int" in return_value_selection_pool.keys() and len(return_value_selection_pool["int"]) > 0:
+            elif (
+                "int" in return_value_selection_pool.keys()
+                and len(return_value_selection_pool["int"]) > 0
+            ):
                 return_var = random.choice(return_value_selection_pool["int"])
             else:
                 return_var = "0"
@@ -191,23 +209,28 @@ class LGP(AbstractPrograms):
         selection_pool = copy.deepcopy(self.terminal_set)
         random_operand_index = random.randint(0, len(statement.demands()) - 1)
         operand = random.choice(
-            selection_pool[statement.demands()[random_operand_index]])
+            selection_pool[statement.demands()[random_operand_index]]
+        )
         statement.operands[random_operand_index] = operand
 
     def change_output_mutation(self, statement):
         output_selection_pool = copy.deepcopy(self.statement_output_pool)
-        if statement.products()[0] == "command" or statement.products()[0] == \
-                "structural" or statement.products()[0] is None:
+        if (
+            statement.products()[0] == "command"
+            or statement.products()[0] == "structural"
+            or statement.products()[0] is None
+        ):
             return
         random_operand_index = random.randint(0, len(statement.products()) - 1)
         output = random.choice(
-            output_selection_pool[statement.products()[random_operand_index]])
+            output_selection_pool[statement.products()[random_operand_index]]
+        )
         statement.outputs[random_operand_index] = output
 
     def distance_to_pos(self, source_pos, pos):
         return math.sqrt((pos[0] - source_pos[0]) ** 2 + (pos[1] - source_pos[1]) ** 2)
 
-    def find_random_spatial_position(self, index):
+    def find_random_spatial_position(self, index=None):
         init_radius = float(self.config["init_radius"])
         if self.config["topology"] == "circle":
             return self.get_point_on_circle(init_radius)
@@ -220,12 +243,16 @@ class LGP(AbstractPrograms):
         return None
 
     def get_point_on_line(self, d):
-        x = random.uniform(-d, d)  # Generate a random x-coordinate within the range [-d, d]
+        x = random.uniform(
+            -d, d
+        )  # Generate a random x-coordinate within the range [-d, d]
         y = 0  # Since the point lies on the x-axis, y-coordinate is 0
         return x, y
 
     def get_point_on_ring(self, r):
-        angle = 2 * math.pi * random.random()  # Generate a random angle between 0 and 2*pi
+        angle = (
+            2 * math.pi * random.random()
+        )  # Generate a random angle between 0 and 2*pi
         x = r * math.cos(angle)  # Calculate x-coordinate
         y = r * math.sin(angle)  # Calculate y-coordinate
         return x, y
@@ -259,12 +286,18 @@ class LGP(AbstractPrograms):
                 random_step_y = random.randint(-1 * random_step_size, random_step_size)
                 new_pos = (random_step_x + self.pos[0], self.pos[1] + random_step_y)
                 if not self.distance_to_pos((0, 0), new_pos) > radius:
-                    self.pos = (self.pos[0] + random_step_x, self.pos[1] + random_step_y)
+                    self.pos = (
+                        self.pos[0] + random_step_x,
+                        self.pos[1] + random_step_y,
+                    )
             else:
                 new_pos = self.find_random_spatial_position(None)
                 self.pos = new_pos
         else:
-            if not self.config["output_ratio"] == "single" and not self.config["output_ratio"] == "none":
+            if (
+                not self.config["output_ratio"] == "single"
+                and not self.config["output_ratio"] == "none"
+            ):
                 # change i/o
                 if self.program_type == "O":
                     self.program_type = "I"
@@ -279,8 +312,10 @@ class LGP(AbstractPrograms):
         max_length = int(self.config["lgp_size_max"])
         distance = self.distance_to_pos(source_pos, self.pos)
         if distance > max_distance:
-            raise ValueError("This shouldn't be possible. There must be a bug that allows for programs to get out of "
-                             "the specified radius")
+            raise ValueError(
+                "This shouldn't be possible. There must be a bug that allows for programs to get out of "
+                "the specified radius"
+            )
         length = len(self.statements)
         return_val = None
         if self.statements[-1].__class__.__name__ == "Retcon":
@@ -299,8 +334,10 @@ class LGP(AbstractPrograms):
         try:
             cost_value = eval(cost_formula)
         except Exception as e:
-            raise Exception("The following error occurred when calculating the program cost: ", e)
-        
+            raise Exception(
+                "The following error occurred when calculating the program cost: ", e
+            )
+
         if cost_value < self.highest_cost:
             cost_value = self.highest_cost
 
@@ -350,8 +387,10 @@ class LGP(AbstractPrograms):
                 try:
                     value_list.append(internal_state[operand])
                 except KeyError:
-                    raise KeyError(f"Variable {operand} is not numerical and does not exist in the internal state "
-                                   f"memory")
+                    raise KeyError(
+                        f"Variable {operand} is not numerical and does not exist in the internal state "
+                        f"memory"
+                    )
         return value_list
 
     def annotation(self):
@@ -372,7 +411,10 @@ class LGP(AbstractPrograms):
                 elif len(indent) > len("\t"):  # normal instruction
                     indent = "\t"
 
-            if index is len(self.statements) - 2 and statement.products()[0] == "structural":
+            if (
+                index is len(self.statements) - 2
+                and statement.products()[0] == "structural"
+            ):
                 annotation += indent + "pass\n"
 
         return annotation
@@ -401,6 +443,6 @@ class LGP(AbstractPrograms):
         row = int(index / size)
         col = index % size
 
-        x, y = init_radius/size * col, init_radius/size * row
+        x, y = init_radius / size * col, init_radius / size * row
 
         return x, y
