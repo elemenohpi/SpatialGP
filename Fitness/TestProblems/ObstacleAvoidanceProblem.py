@@ -1,13 +1,11 @@
 from Fitness.AbstractFitness import AbstractFitness
-from Fitness.lib.ObstacleAvoidance import ObstacleAvoidance
+from Fitness.libs.ObstacleAvoidance import ObstacleAvoidance
 
 
 class ObstacleAvoidanceProblem(AbstractFitness):
 
     def __init__(self) -> None:
         super().__init__()
-        # 0 is empty space, 1 is obstacle, 2 is treasure, 3 is agent facing north, 4 is agent facing east,
-        # 5 is agent facing south, 6 is agent facing west, 7 is end tile, 8 is a trap
         self.task = ObstacleAvoidance()
 
     def settings(self):
@@ -32,15 +30,14 @@ class ObstacleAvoidanceProblem(AbstractFitness):
         }
 
     def outputs(self):
-        return [0, 1, 2]
+        return [0, 1, 2]  # Left, Right, NoAction
 
     def evaluate(self, individual):
         fitness = 0
-
         for _ in range(5):
             obs, done, reward = self.task.reset()
             for _ in range(100):
-                input_dict = [
+                input_list = [
                     obs[0],
                     obs[1],
                     obs[2],
@@ -55,21 +52,15 @@ class ObstacleAvoidanceProblem(AbstractFitness):
                     obs[5],
                 ]
 
-                output = individual.evaluate(input_dict)
+                output = individual.evaluate(input_list)
                 if not output:
                     output = 0
 
                 action = int(output)
 
                 obs, done, reward = self.task.step(action)
-                # if individual.individual_index == 0:
-                # 	print("action", action)
-                # 	self.task.show_map()
-                # 	print("reward", reward)
 
                 if done:
                     break
             fitness += reward
-        # print("reward: ", reward, individual.individual_index)
-        # print("==================")
         return fitness / 5
